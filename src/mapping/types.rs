@@ -52,6 +52,16 @@ pub struct PaginationSettings {
 pub struct Settings {
     #[serde(default)]
     pub target_base_path: String,
+    /// Prefix stripped from the incoming request path before matching it
+    /// against `[[endpoints]]` sources. Needed when the source-speaking
+    /// client itself prepends a fixed prefix that isn't part of the API's
+    /// logical path shape -- e.g. the `gh` CLI (and other GitHub Enterprise
+    /// Server-aware clients) request `/api/v3/...` for any host that isn't
+    /// literally `github.com`, even though the mapping file's endpoints are
+    /// written against the plain `github.com` path shape (`/user`, not
+    /// `/api/v3/user`).
+    #[serde(default)]
+    pub source_base_path: String,
     #[serde(default)]
     pub unmapped_endpoint_behavior: UnmappedEndpointBehavior,
     #[serde(default)]
@@ -78,6 +88,7 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             target_base_path: String::new(),
+            source_base_path: String::new(),
             unmapped_endpoint_behavior: UnmappedEndpointBehavior::Reject,
             unmapped_field_behavior: UnmappedFieldBehavior::Passthrough,
             pagination: PaginationSettings::default(),

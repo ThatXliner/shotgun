@@ -71,6 +71,10 @@ shotgun_version = "0.1.0"
 
 [settings]
 target_base_path = "/api/v1"           # prepended to every target path
+source_base_path = "/api/v3"           # stripped from the incoming request path before matching --
+                                        # for clients that inject a fixed prefix that isn't part of
+                                        # the API's logical shape (e.g. the `gh` CLI always requests
+                                        # /api/v3/... for any host that isn't literally github.com)
 unmapped_endpoint_behavior = "reject"   # "reject" returns 501; "passthrough" forwards as-is
 unmapped_field_behavior = "passthrough" # "passthrough" keeps unknown fields;
                                         # "drop" removes all; "drop_unknown" removes unlisted

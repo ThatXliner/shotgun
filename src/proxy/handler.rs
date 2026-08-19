@@ -94,8 +94,16 @@ pub async fn proxy_handler(State(state): State<Arc<AppState>>, req: axum::extrac
     let method = req.method().clone();
     let path = req.uri().path().to_string();
     let query = req.uri().query().unwrap_or("").to_string();
+    let match_path = {
+        let prefix = &state.mapping.settings.source_base_path;
+        if !prefix.is_empty() {
+            path.strip_prefix(prefix.as_str()).unwrap_or(&path)
+        } else {
+            path.as_str()
+        }
+    };
 
-    let Some((endpoint, params)) = match_endpoint(&state.mapping, &method, &path) else {
+    let Some((endpoint, params)) = match_endpoint(&state.mapping, &method, match_path) else {
         if state.log_unmapped {
             tracing::warn!(%method, %path, "request to unmapped endpoint");
         }

@@ -10,6 +10,8 @@ Shotgun is a reverse proxy generator. Give it two OpenAPI specs—the API you wa
 
 Two APIs in the same domain (Git forges, payment processors, CMS platforms) usually share 60-80% of their structure. Shotgun maps the obvious parts and leaves you a checklist for the rest.
 
+**Flagship use case: [Anvil](https://github.com/ThatXliner/anvil).** It points GitHub-shaped tooling (`gh`, Renovate, CI scripts) at a self-hosted Forgejo instance — a curated `mappings.toml` on top of this proxy, no client-side changes needed. Anvil is what's driving Shotgun's feature work against real, independently-evolved specs instead of toy fixtures.
+
 ## Quick start
 
 ```sh

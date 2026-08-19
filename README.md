@@ -23,7 +23,7 @@ shotgun init --source github-api.json --target forgejo-api.json --output mapping
 # 2. Review mappings.toml — fill in anything left as target = ""
 
 # 3. Run the proxy
-#    --target-url is where Shotgun forwards requests to (your Forgejo instance)
+#    --target-url is where Shotgun forwards requests to (e.g. your Forgejo instance)
 shotgun serve --mappings mappings.toml --target-url https://forgejo.example.com
 
 # 4. Now clients call Shotgun using the GitHub API shape — it translates on the fly

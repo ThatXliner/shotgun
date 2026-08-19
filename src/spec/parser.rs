@@ -162,11 +162,10 @@ fn parse_swagger2_operation(op: &Value, doc: &Value) -> Operation {
         }
     }
 
-    let response_body = doc
-        .clone()
-        .as_object()
-        .and(op.get("responses"))
+    let response_body = op
+        .get("responses")
         .and_then(|responses| find_success_response(responses))
+        .and_then(|resp| resolve_swagger2_response(resp, doc))
         .and_then(|resp| resp.get("schema"))
         .map(|s| body_from_swagger2_schema(s));
 
@@ -370,6 +369,19 @@ fn body_from_openapi3_schema(schema: &Value) -> Body {
 // ---------------------------------------------------------------------
 // Shared helpers
 // ---------------------------------------------------------------------
+
+/// Swagger 2.0 allows a per-status response entry to itself be a
+/// `$ref: "#/responses/Name"` into the document's top-level `responses` map
+/// (rather than inlining `schema` directly) -- Forgejo's spec does this for
+/// nearly every endpoint. Follow that one level of indirection so `schema`
+/// lookups see the real response object.
+fn resolve_swagger2_response<'a>(resp: &'a Value, doc: &'a Value) -> Option<&'a Value> {
+    if let Some(r) = resp.get("$ref").and_then(|v| v.as_str()) {
+        let name = r.strip_prefix("#/responses/")?;
+        return doc.pointer("/responses").and_then(|v| v.get(name));
+    }
+    Some(resp)
+}
 
 fn find_success_response(responses: &Value) -> Option<&Value> {
     let obj = responses.as_object()?;

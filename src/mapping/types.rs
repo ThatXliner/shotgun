@@ -58,6 +58,13 @@ pub struct Settings {
     pub unmapped_field_behavior: UnmappedFieldBehavior,
     #[serde(default, skip_serializing_if = "is_default_pagination")]
     pub pagination: PaginationSettings,
+    /// Headers to add to every mapped response that the target API has no
+    /// concept of at all (e.g. GitHub's `X-RateLimit-*` headers, which
+    /// Forgejo doesn't send). Static values only -- these are synthesized,
+    /// not translated from an upstream header, so they're inserted
+    /// unconditionally and overwrite any same-named upstream header.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub synthesized_response_headers: BTreeMap<String, String>,
 }
 
 fn is_default_pagination(p: &PaginationSettings) -> bool {
@@ -74,6 +81,7 @@ impl Default for Settings {
             unmapped_endpoint_behavior: UnmappedEndpointBehavior::Reject,
             unmapped_field_behavior: UnmappedFieldBehavior::Passthrough,
             pagination: PaginationSettings::default(),
+            synthesized_response_headers: BTreeMap::new(),
         }
     }
 }

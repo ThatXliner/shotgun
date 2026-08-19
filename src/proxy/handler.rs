@@ -214,6 +214,14 @@ pub async fn proxy_handler(State(state): State<Arc<AppState>>, req: axum::extrac
         }
     }
     crate::proxy::pagination::apply_header_renames(&mut resp_headers, &endpoint.headers);
+    for (name, value) in &state.mapping.settings.synthesized_response_headers {
+        if let (Ok(n), Ok(v)) = (
+            HeaderName::from_bytes(name.as_bytes()),
+            HeaderValue::from_str(value),
+        ) {
+            resp_headers.insert(n, v);
+        }
+    }
 
     let resp_bytes = match upstream_resp.bytes().await {
         Ok(b) => b,

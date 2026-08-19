@@ -40,7 +40,7 @@ shotgun validate --mappings mappings.toml
 
 ## How matching works
 
-Matching is **deterministic** — an endpoint or field either maps unambiguously or it doesn't. No scoring, no fuzzy similarity, no guessed renames. A wrong guess that looks confident is worse than an honest gap.
+Matching/rewriting is **deterministic**.
 
 - **Endpoints** are matched by normalized path (`{param}` names are ignored) + HTTP method, then by `operationId`. Everything else is left unmapped for you.
 - **Fields** are matched by exact name. Same name + compatible type = auto-mapped. Same name + incompatible type = flagged. Fields on only one side become `defaults` or `drops` — the todo list for adding renames.
@@ -71,7 +71,7 @@ Key concepts:
 - **Renames** map source field names to target field names. Shotgun never writes these — every rename is something a human added.
 - **`edited = true`** marks entries that `shotgun sync` should leave alone on re-diff.
 - **`[[schemas]]`** define reusable field maps for named types referenced via `schema_map`.
-- **`[settings]`** controls unmapped-endpoint behavior, base paths, and pagination handling.
+- **`[settings]`** controls unmapped-endpoint behavior, base paths, pagination handling, and `synthesized_response_headers` -- static headers stamped onto every mapped response for concepts the target API has no equivalent of at all (e.g. GitHub's `X-RateLimit-*`, which Forgejo never sends). Fixed strings only, inserted unconditionally.
 
 ## Status
 

@@ -12,11 +12,13 @@ Two APIs in the same domain (Git forges, payment processors, CMS platforms) usua
 
 **Flagship use case: [Anvil](https://github.com/ThatXliner/anvil).** It points GitHub-shaped tooling (`gh`, Renovate, CI scripts) at a self-hosted Forgejo instance — a curated `mappings.toml` on top of this proxy, no client-side changes needed. Anvil is what's driving Shotgun's feature work against real, independently-evolved specs instead of toy fixtures.
 
-## Quick start
+## Install
 
 ```sh
-cargo build --release
+cargo install shotgun-proxy
 ```
+
+## Quick start
 
 ```sh
 # 1. Diff two specs and generate a mapping file

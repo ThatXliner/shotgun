@@ -1,0 +1,115 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "TaskApp API (subset)", "version": "1.0.0" },
+  "servers": [{ "url": "https://api.taskapp.io" }],
+  "paths": {
+    "/tasks": {
+      "get": {
+        "operationId": "tasks/list",
+        "parameters": [
+          { "name": "per_page", "in": "query", "required": false, "schema": { "type": "integer" } },
+          { "name": "sort_by", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks/{task_id}": {
+      "get": {
+        "operationId": "tasks/get",
+        "parameters": [
+          { "name": "task_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } }
+          }
+        }
+      },
+      "put": {
+        "operationId": "tasks/update",
+        "parameters": [
+          { "name": "task_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskUpdate" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } }
+          }
+        }
+      }
+    },
+    "/tasks/{task_id}/remind": {
+      "post": {
+        "operationId": "tasks/set-reminder",
+        "parameters": [
+          { "name": "task_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "remind_at": { "type": "string", "format": "date-time" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "ok" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "username": { "type": "string" },
+          "display_name": { "type": "string" },
+          "avatar_url": { "type": "string" }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "due_date": { "type": "string", "format": "date-time" },
+          "priority": { "type": "integer" },
+          "starred": { "type": "boolean" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "assignee": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "TaskUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "due_date": { "type": "string", "format": "date-time" },
+          "priority": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

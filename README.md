@@ -49,7 +49,9 @@ Nested schemas (e.g. a `User` inside a `Repository`) are diffed once and reused 
 
 ## The mapping file
 
-What to rewrite is cached in a `mappings.toml` file:
+What to rewrite is cached in a `mappings.toml` file.
+
+> **TOML syntax note:** `[[endpoints]]` (double brackets) starts a new entry in a list — each one defines a separate endpoint. `[endpoints.response.renames]` (single brackets) is a sub-section of the most recent `[[endpoints]]` above it, not a new endpoint.
 
 ```toml
 # --- Provenance ---

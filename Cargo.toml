@@ -1,9 +1,21 @@
 [package]
-name = "shotgun"
+name = "shotgun-proxy"
 version = "0.1.0"
 edition = "2021"
 description = "Turn any REST API into the shape of another"
 license = "MIT"
+repository = "https://github.com/ThatXliner/shotgun"
+homepage = "https://github.com/ThatXliner/shotgun"
+readme = "README.md"
+keywords = ["openapi", "proxy", "rest-api", "api-gateway", "reverse-proxy"]
+categories = ["command-line-utilities", "web-programming::http-server"]
+
+[lib]
+name = "shotgun"
+
+[[bin]]
+name = "shotgun"
+path = "src/main.rs"
 
 [dependencies]
 axum = "0.7"

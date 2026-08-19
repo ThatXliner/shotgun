@@ -1,5 +1,7 @@
 # Shotgun
 
+**Turn any REST API into the shape of another.**
+
 Shotgun is a reverse proxy generator for OpenAPI specs. Point it at two API
 descriptions — the interface you want to *expose* (source) and the upstream
 service you're actually calling (target) — and it diffs them, infers field

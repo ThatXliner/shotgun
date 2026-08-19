@@ -2,7 +2,7 @@
 name = "shotgun"
 version = "0.1.0"
 edition = "2021"
-description = "OpenAPI-to-OpenAPI translation reverse proxy"
+description = "Turn any REST API into the shape of another"
 license = "MIT"
 
 [dependencies]

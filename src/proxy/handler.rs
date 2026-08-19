@@ -195,6 +195,17 @@ pub async fn proxy_handler(State(state): State<Arc<AppState>>, req: axum::extrac
     let status = upstream_resp.status();
     let mut resp_headers = HeaderMap::new();
     for (name, value) in upstream_resp.headers().iter() {
+        // The body below is a fully-materialized byte buffer, not a
+        // passthrough stream -- forwarding the upstream's own framing
+        // headers (chunked transfer-encoding, content-encoding for a body
+        // we may have already re-serialized) alongside hyper's own
+        // Content-Length produces an invalid response that most clients
+        // silently drop the connection on.
+        if name.as_str().eq_ignore_ascii_case("transfer-encoding")
+            || name.as_str().eq_ignore_ascii_case("content-encoding")
+        {
+            continue;
+        }
         if let (Ok(n), Ok(v)) = (
             HeaderName::from_bytes(name.as_str().as_bytes()),
             HeaderValue::from_bytes(value.as_bytes()),

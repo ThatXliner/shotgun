@@ -23,7 +23,7 @@ cargo build --release
 # 1. Diff the two specs and generate a mapping file.
 shotgun init --source github-api.json --target forgejo-api.json --output mappings.toml
 
-# 2. Review mappings.toml, fill in anything marked confidence = "manual".
+# 2. Review mappings.toml, fill in anything left with target = "".
 
 # 3. Run the proxy.
 shotgun serve --mappings mappings.toml --target-url https://forgejo.example.com
@@ -160,12 +160,35 @@ response.
 endpoints/fields, the target API's base path, and pagination handling
 (param-name translation, `Link` header rewriting).
 
+## Comparison to existing tools
+
+Nothing found does exactly this — auto-diff two independently-authored
+OpenAPI specs and generate a bidirectional, editable field-mapping proxy
+between them — but several tools solve adjacent pieces of the problem:
+
+| Tool | What it does | Why it's not this |
+|---|---|---|
+| [Kong `request-transformer`/`response-transformer`](https://developer.konghq.com/plugins/request-transformer/) | Rename/add/remove headers, query params, and body fields on the way through a gateway | Every rule is hand-written; there's no OpenAPI-aware diffing step that proposes mappings from two specs |
+| [AWS API Gateway mapping templates](https://docs.aws.amazon.com/apigateway/latest/developerguide/models-mappings.html) | Transform request/response payloads per-integration using VTL scripts | Same as above — a scripting target, not a diff-and-generate workflow; one template per endpoint, written by hand |
+| [Apigee](https://docs.apigee.com/api-platform/tutorials/create-api-proxy-openapi-spec) | Scaffolds an API proxy *from* a single OpenAPI spec | Generates a passthrough proxy for one spec, not a translator between two different specs |
+| [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) / Envoy gRPC-JSON transcoder | Translates RESTful JSON to gRPC using one `.proto` as the single source of truth | Protocol translation from a single schema, not shape translation between two independently-evolved REST APIs |
+| [GraphQL Mesh](https://github.com/ardatan/graphql-mesh) / [WunderGraph](https://docs.wundergraph.com/docs/supported-data-sources/rest-openapi) | Unify multiple REST/GraphQL/gRPC sources behind one GraphQL (or generated JSON) API | The unifying layer is GraphQL, not a REST API shaped like an existing spec; no direct REST-in/REST-out passthrough with per-field mapping review |
+| [oasdiff](https://github.com/oasdiff/oasdiff) / [openapi-diff](https://github.com/OpenAPITools/openapi-diff) | Diff two versions of *the same* API and flag breaking changes | Compares one API against itself over time for CI gating — doesn't match endpoints/fields across two *different* APIs or generate a runnable proxy |
+| [mitmproxy2swagger](https://github.com/alufers/mitmproxy2swagger) | Reverse-engineer an OpenAPI spec from captured HTTP traffic | Produces a spec from traffic; doesn't map or proxy between two specs |
+
+The closest analogues are gateway *transformation* plugins (Kong, AWS
+mapping templates) — but they're scripting targets you write by hand for
+one endpoint at a time. Shotgun's difference is upstream of that: it reads
+both OpenAPI specs, deterministically figures out what already lines up,
+and generates the starting point so you're editing a diff instead of
+writing one from a blank file.
+
 ## Project layout
 
 ```
 src/
   spec/    OpenAPI 2.0/3.x parsing into a normalized internal model
-  diff/    endpoint + schema matching, scoring, mapping-file generation
+  diff/    endpoint + schema matching, mapping-file generation
   mapping/ mapping file types, TOML/YAML/JSON I/O, sync merge logic
   proxy/   axum server, generic request handler, JSON transform engine
 tests/     diff engine + proxy transform tests, Petstore v2/v3 fixtures

@@ -71,7 +71,7 @@ Key concepts:
 - **Renames** map source field names to target field names. Shotgun never writes these — every rename is something a human added.
 - **`edited = true`** marks entries that `shotgun sync` should leave alone on re-diff.
 - **`[[schemas]]`** define reusable field maps for named types referenced via `schema_map`.
-- **`[settings]`** controls unmapped-endpoint behavior, base paths, pagination handling, and `synthesized_response_headers` -- static headers stamped onto every mapped response for concepts the target API has no equivalent of at all (e.g. GitHub's `X-RateLimit-*`, which Forgejo never sends). Fixed strings only, inserted unconditionally.
+- **`[settings]`** controls unmapped-endpoint behavior, base paths, pagination handling, and other miscellaneous options.
 
 ## Status
 

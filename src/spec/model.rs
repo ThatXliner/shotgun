@@ -88,7 +88,10 @@ impl FieldType {
             FieldType::Boolean => serde_json::Value::Bool(false),
             FieldType::Array => serde_json::Value::Array(vec![]),
             FieldType::Object => serde_json::Value::Object(Default::default()),
-            FieldType::Unknown => serde_json::Value::Null,
+            // TOML has no null literal, and `defaults` values get written as
+            // TOML -- an actual null here would make every mapping file
+            // unserializable. Empty string is the least-wrong placeholder.
+            FieldType::Unknown => serde_json::Value::String(String::new()),
         }
     }
 }

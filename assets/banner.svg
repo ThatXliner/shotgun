@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" width="1280" height="320" role="img" aria-label="Shotgun — turn any REST API into the shape of another">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12151c"/>
+      <stop offset="1" stop-color="#0a0c11"/>
+    </linearGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.5" fill="#1c2130"/>
+    </pattern>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="320" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1280" height="320" fill="url(#dots)" opacity="0.5"/>
+  <rect x="1" y="1" width="1278" height="318" fill="none" stroke="#232838" stroke-width="1"/>
+
+  <!-- reticle mark -->
+  <g transform="translate(150,160)">
+    <circle cx="0" cy="0" r="66" fill="none" stroke="#e8955b" stroke-width="6"/>
+    <circle cx="0" cy="0" r="42" fill="none" stroke="#5ec2c9" stroke-width="4"/>
+    <circle cx="0" cy="0" r="6" fill="#f3efe6"/>
+    <g stroke="#e8955b" stroke-width="6" stroke-linecap="round">
+      <line x1="0" y1="-88" x2="0" y2="-70"/>
+      <line x1="0" y1="70" x2="0" y2="88"/>
+      <line x1="-88" y1="0" x2="-70" y2="0"/>
+      <line x1="70" y1="0" x2="88" y2="0"/>
+    </g>
+  </g>
+
+  <!-- wordmark -->
+  <text x="280" y="158" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="700" font-size="76" letter-spacing="2" fill="#f3efe6">SHOTGUN</text>
+
+  <!-- tagline -->
+  <text x="282" y="200" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#9aa4b4">Turn any REST API into the shape of another.</text>
+
+  <!-- caption -->
+  <text x="282" y="232" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#565f70">openapi → openapi translation proxy</text>
+</svg>

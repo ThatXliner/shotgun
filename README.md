@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.svg" alt="Shotgun — turn any REST API into the shape of another" width="100%">
+</p>
+
 # Shotgun
 
 **Turn any REST API into the shape of another.**

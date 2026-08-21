@@ -1,0 +1,157 @@
+/* ===================================================================
+   ANVIL — the flagship use-case spotlight. This section carries a
+   little more illustrative weight than its neighbors (one small flat-
+   shaded icon), but the body copy, the exercise list, and the status
+   aside all stay firmly in "reading" mode: flat night ground, no
+   outline on the panel, no cyan wash. Everything is scoped under
+   #anvil so nothing here leaks into the sections around it.
+   =================================================================== */
+
+/* ---- head row: small badge + the eyebrow label. The bespoke anvil
+   SVG that used to live here read as an indistinct blob at 32x22px —
+   a mark nobody could identify on screen. Swapped for the compass
+   star, an existing mark from this brand's own ornament vocabulary
+   (law 6) already proven legible at small sizes elsewhere on this
+   page (quickstart step markers, the idea-flow connectors), at its
+   native 22px — no bespoke icon budget spent, no illegible blob. ---- */
+#anvil .anvil-head {
+  display: flex;
+  align-items: center;
+  gap: .8em;
+  margin-bottom: 1.1rem;
+}
+
+#anvil .anvil-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sky-night) 80%, white 5%);
+  border: 1px solid color-mix(in srgb, var(--bronze-flat) 45%, transparent);
+}
+
+#anvil .anvil-head .eyebrow { margin-bottom: 0; }
+
+#anvil .cta { margin: 1.5rem 0 2.1rem; }
+
+/* the out-link reuses .btn's chamfer/stroke/shadow geometry — same
+   family as the hero's primary CTA — but bare .btn has no ::before
+   fill of its own (transparent), so on its own it rendered as a flat
+   navy chamfer with none of the drawn-object shading .btn.primary
+   carries: a third, flatter button language on one page. This gives
+   it the same construction (two flat cel bands + upper-left specular
+   + the hard offset shadow, already supplied by .btn) in its own
+   SECONDARY key: a dark steel plate — echoing the section's own
+   hardware, not the CTA's bronze — so it reads as clearly lower in
+   the hierarchy rather than a second competing CTA.
+
+   Contrast (WCAG AA, 4.5:1 needed at this weight/size — the label is
+   bold .98rem/15.7px, under the 18.66px bold threshold for the 3:1
+   "large text" allowance):
+     - --ivory-flat label on the majority plate band
+       (color-mix(steel-shadow 65%, ink-outline 35%)): 7.32:1
+     - --ivory-flat label on the specular's brightest possible pixel
+       (--steel-shadow, its 0%-stop peak — the worst case a glyph
+       could ever sit on): 4.74:1
+   Both clear AA, so it's safe even where the specular overlaps a
+   letter, not just against the flat fill. */
+#anvil .anvil-link::before {
+  background:
+    radial-gradient(ellipse 16% 24% at 21% 26%,
+      var(--steel-shadow) 0%, transparent 72%),
+    linear-gradient(
+      color-mix(in srgb, var(--steel-shadow) 65%, var(--ink-outline) 35%) 0% 88%,
+      var(--ink-outline) 88% 100%
+    );
+}
+#anvil .anvil-link span { color: var(--ivory-flat); }
+#anvil .anvil-link:hover {
+  filter: drop-shadow(3px 4px 0 var(--ink-outline)) brightness(1.15);
+}
+#anvil .anvil-link:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 2px;
+}
+
+/* ---- what it exercises ---- */
+#anvil .anvil-exercise {
+  margin: 0 0 2.2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid color-mix(in srgb, var(--bronze-flat) 28%, transparent);
+}
+
+#anvil .anvil-exercise-label {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  margin-bottom: .9em;
+}
+
+#anvil .anvil-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .65em;
+}
+
+#anvil .anvil-list li {
+  position: relative;
+  padding-left: 1.35em;
+  color: var(--ivory-flat);
+  opacity: .88;
+  line-height: 1.55;
+}
+
+#anvil .anvil-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .62em;
+  width: 7px;
+  height: 7px;
+  background: var(--bronze-flat);
+  transform: rotate(45deg);
+}
+
+/* ---- status: an honest aside, not a warning banner. Same lightened-
+   navy .panel surface used elsewhere on the page, no red/amber alarm
+   color, no outline — just a small bronze bullet star marking it as a
+   note worth reading, the way the source uses a rule-bullet star to
+   break a line rather than to alarm. ---- */
+#anvil .anvil-status {
+  display: flex;
+  gap: .9em;
+  align-items: flex-start;
+  padding: 1.3em 1.5em;
+}
+
+#anvil .anvil-status-mark {
+  flex: none;
+  margin-top: .35em;
+}
+
+#anvil .anvil-status-body h3 {
+  font-size: 1.02rem;
+  transform: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--ivory-flat);
+  margin-bottom: .35em;
+}
+
+#anvil .anvil-status-body p {
+  margin: 0;
+  font-size: .94rem;
+  max-width: 56ch;
+}
+
+@media (max-width: 640px) {
+  #anvil .anvil-status { flex-direction: column; }
+}

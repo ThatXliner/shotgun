@@ -1,0 +1,51 @@
+<section id="quickstart">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Quick start</div>
+      <h2>Two commands and one edit get you a proxy.</h2>
+      <p>Diff, review, serve. When a spec changes, re-diff without losing your edits.</p>
+    </div>
+
+    <div class="quickstart-steps">
+      <div class="quickstart-step panel">
+        <div class="quickstart-n"><span class="star star--compass"></span><b>01</b></div>
+        <h3>Diff the specs</h3>
+        <p><code>shotgun init</code> matches endpoints and fields, then writes a <code>mappings.toml</code>. It leaves blank anything it can't resolve.</p>
+      </div>
+      <div class="quickstart-step panel">
+        <div class="quickstart-n"><span class="star star--compass"></span><b>02</b></div>
+        <h3>Fill in the gaps</h3>
+        <p>Anything left as <code>target = ""</code> is your todo list. Mark what you touch <code>edited = true</code> to protect it from sync.</p>
+      </div>
+      <div class="quickstart-step panel">
+        <div class="quickstart-n"><span class="star star--compass"></span><b>03</b></div>
+        <h3>Serve it</h3>
+        <p>Point <code>--target-url</code> at the upstream. Clients keep speaking the source API's shape.</p>
+      </div>
+    </div>
+
+    <div class="quickstart-code" data-copy-block>
+      <div class="quickstart-code-bar">
+        <div class="quickstart-dots"><i></i><i></i><i></i></div>
+        <span class="quickstart-name">terminal</span>
+        <button class="quickstart-copy" type="button" data-copy="block" aria-label="Copy the quick start commands">copy</button>
+      </div>
+      <pre data-lang="sh"><span class="quickstart-c"># 1. Diff two specs and generate a mapping file</span>
+shotgun init --source github-api.json --target forgejo-api.json --output mappings.toml
+
+<span class="quickstart-c"># 2. Review mappings.toml, fill in anything left as target = ""</span>
+
+<span class="quickstart-c"># 3. Run the proxy</span>
+shotgun serve --mappings mappings.toml --target-url https://forgejo.example.com
+
+<span class="quickstart-c"># 4. Clients call Shotgun in the GitHub shape; it translates on the fly</span>
+curl http://localhost:8080/repos/owner/repo
+
+<span class="quickstart-c"># When specs change, re-diff without losing your edits.</span>
+shotgun sync --source github-api-v2.json --target forgejo-api-v2.json --mappings mappings.toml
+
+<span class="quickstart-c"># Check a mapping file for problems</span>
+shotgun validate --mappings mappings.toml</pre>
+    </div>
+  </div>
+</section>

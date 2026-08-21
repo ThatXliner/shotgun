@@ -1,0 +1,12 @@
+node_modules/
+package-lock.json
+package.json
+shots/
+blind/
+refs/
+state/
+.dev/
+.archive-letterpress/
+index.original.html
+progress.html
+specimen.html

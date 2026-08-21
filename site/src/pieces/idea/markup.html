@@ -1,0 +1,51 @@
+<section id="idea">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">The idea</div>
+      <h2>APIs in the same domain already share most of their shape.</h2>
+      <p>
+        Git forges, payment processors, and CMS platforms usually share 60 to 80 percent of their structure.
+        Shotgun maps the obvious parts and leaves you a checklist for the rest.
+      </p>
+    </div>
+
+    <div class="flow idea-flow">
+      <div class="flow-card idea-flow-card panel">
+        <span class="idea-card-tag" aria-hidden="true">01</span>
+        <div class="lbl">Client thinks it's calling</div>
+        <div class="val">GET /<wbr>repos/<wbr>{owner}/<wbr>{repo}/<wbr>issues/<wbr>{issue_number}</div>
+        <div class="note"><code>gh</code>, Renovate, and CI scripts run unmodified.</div>
+      </div>
+
+      <div class="flow-arrow idea-flow-arrow" aria-hidden="true">
+        <span class="idea-connector-seg"></span>
+        <span class="star star--compass idea-connector-star"></span>
+        <span class="idea-connector-seg"></span>
+        <span class="idea-connector-head"></span>
+      </div>
+      <span class="idea-visually-hidden">──▶</span>
+
+      <div class="flow-card mid idea-flow-card idea-flow-card--mid panel panel--keyed">
+        <span class="idea-card-tag idea-card-tag--mid" aria-hidden="true">02</span>
+        <div class="lbl">Shotgun rewrites</div>
+        <div class="val">path_params · renames · defaults · drops</div>
+        <div class="note">Driven by <code>mappings.toml</code>. Nothing guessed at runtime.</div>
+      </div>
+
+      <div class="flow-arrow idea-flow-arrow" aria-hidden="true">
+        <span class="idea-connector-seg"></span>
+        <span class="star star--compass idea-connector-star"></span>
+        <span class="idea-connector-seg"></span>
+        <span class="idea-connector-head"></span>
+      </div>
+      <span class="idea-visually-hidden">──▶</span>
+
+      <div class="flow-card idea-flow-card panel">
+        <span class="idea-card-tag" aria-hidden="true">03</span>
+        <div class="lbl">Upstream gets</div>
+        <div class="val">GET /<wbr>api/<wbr>v1/<wbr>repos/<wbr>{owner}/<wbr>{repo}/<wbr>issues/<wbr>{index}</div>
+        <div class="note">The response comes back in the shape the client expected.</div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,137 @@
+/* ===================================================================
+   LAYOUT CONTRACT
+
+   Six section builders worked in parallel with the design laws but no
+   shared layout rules, so each invented its own container width and
+   heading measure — 880px here, 720px there, headings measured at
+   16ch, 28ch and 42ch. The page ended up with four different left
+   edges and headings that wrapped on different word counts.
+
+   This file is the contract. It loads after the foundation and before
+   any section, and section CSS must not override the properties it
+   sets. One container, one rhythm, one measure.
+   =================================================================== */
+
+:root {
+  /* the single content column, shared by every section including the
+     masthead — this is what fixes the ragged left edge */
+  --shell-max: 1160px;
+  --shell-gutter: 28px;
+
+  /* vertical rhythm. Sections were running 400-500px of dead night sky
+     between them, which reads as unfinished rather than as generous. */
+  --section-pad-y: clamp(4.5rem, 8vw, 7rem);
+
+  /* measures. Display headings are set in a compressed slab at large
+     sizes, so they need a WIDER character measure than body copy or
+     they wrap every three words. */
+  --measure-display: 24ch;
+  --measure-lead: 62ch;
+  --measure-body: 68ch;
+}
+
+.wrap,
+.shell {
+  width: 100%;
+  max-width: var(--shell-max);
+  margin-inline: auto;
+  padding-inline: var(--shell-gutter);
+}
+
+/* Every top-level section gets the same rhythm. Sections may add to
+   this with their own margin, but must not set their own padding-block
+   or the page loses its beat. */
+main > section,
+main > .section {
+  padding-block: var(--section-pad-y);
+}
+
+/* The section intro: kicker, heading, lead. Consistent everywhere. */
+.sec-head { max-width: var(--measure-lead); }
+.sec-head > h2 { max-width: var(--measure-display); }
+.sec-head > p { max-width: var(--measure-lead); }
+
+/* Headings must not be measured tighter than the contract anywhere. */
+main h2 { max-width: var(--measure-display); }
+main p  { max-width: var(--measure-body); }
+
+/* ---- shared panel treatment -------------------------------------
+   The drafts each grew their own card: a rounded rectangle with a
+   hairline border and a slightly lighter fill. Six of those in a grid
+   is the generic SaaS feature grid the brief warns about, and a
+   uniform border-radius on everything is called out explicitly as a
+   trap.
+
+   This panel takes its cue from the artwork instead: a flat raised
+   plate on the night ground, squared off rather than pill-rounded,
+   lifted by a stepped tonal edge (light top-left, dark bottom-right)
+   the way the drawn objects in the banner are, with no outline —
+   outlines belong to illustrated shapes, not UI. ---- */
+.panel {
+  position: relative;
+  background: var(--panel-fill, #0a1523);
+  border: 0;
+  border-radius: 3px;
+  padding: 1.4rem 1.5rem;
+  box-shadow:
+    inset 1px 1px 0 rgba(203, 166, 121, .13),
+    inset -1px -1px 0 rgba(0, 0, 0, .45);
+}
+
+/* the one accent the system allows, used sparingly and never as fill */
+.panel--keyed::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--bronze-flat, #9E6F4C);
+}
+
+/* ---- code block scroll affordance -------------------------------
+   Overflowing code was hard-clipping at the box edge with no
+   scrollbar, no fade and nothing else to say the line continues, so
+   a truncated "# sync will not overwrite t" read as the whole
+   comment. macOS hides overlay scrollbars until you scroll, which
+   removes the only cue. These are styled to stay visible. ---- */
+main pre {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bronze-groove, #7F5E41) transparent;
+  overscroll-behavior-x: contain;
+}
+main pre::-webkit-scrollbar { height: 8px; }
+main pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, .28);
+  border-radius: 4px;
+}
+main pre::-webkit-scrollbar-thumb {
+  background: var(--bronze-groove, #7F5E41);
+  border-radius: 4px;
+}
+main pre::-webkit-scrollbar-thumb:hover {
+  background: var(--bronze-mid, #9F734D);
+}
+
+/* ---- syntax highlighting -----------------------------------------
+   The original page had a small shell/TOML highlighter. I dropped it
+   when the head/tail were rewritten for the new direction, which left
+   every code block a single flat tone. Restored here in the brand
+   palette.
+
+   Every token colour is checked against the code panel ground
+   (#0a1523): all clear WCAG AA comfortably. Warm tokens come from the
+   bronze ramp, the thing-you-type is the brightest ivory, and strings
+   take the one cool neutral so they separate from the warms without
+   spending the cyan accent, which the laws reserve for a single rare
+   highlight rather than a colour repeated down every code block. ---- */
+.tok-c { color: var(--bronze-light); font-style: italic; }   /* comment   7.67:1 */
+.tok-cmd { color: var(--ivory-bright); font-weight: 600; }   /* command  16.41:1 */
+.tok-sub { color: var(--bronze-highlight); }                 /* subcmd   12.46:1 */
+.tok-flag { color: var(--bronze-light); }                    /* --flag    7.67:1 */
+.tok-str { color: var(--steel-light); }                      /* string   12.18:1 */
+.tok-num { color: var(--bronze-highlight); }                 /* number   12.46:1 */
+.tok-key { color: var(--ivory-flat); }                       /* toml key 13.84:1 */
+.tok-tbl { color: var(--bronze-highlight); font-weight: 600; } /* [table] */
+.tok-bool { color: var(--steel-base); }                      /* true/false 9.30:1 */
+.tok-p { color: var(--bronze-groove); user-select: none; }   /* the $ prompt */

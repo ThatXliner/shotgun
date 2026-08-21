@@ -1,0 +1,55 @@
+/* ---- hero mascot ------------------------------------------------
+   The banner is a two-part composition: mascot on one side, wordmark
+   and tagline on the other. Our hero had its content on the left and
+   roughly 55% empty night sky on the right at desktop widths, which
+   read as unbalanced rather than composed.
+
+   It sits behind the copy and is clipped by .hero-ground, so it can
+   bleed toward the frame edge the way it does in the artwork. Below
+   the width where it would collide with the text it is removed
+   rather than shrunk — a tiny mascot reads as a stray sticker.
+
+   The drop-shadow is a hard zero-blur offset, matching the one
+   shadow convention the system allows. ---- */
+.hero-mascot {
+  position: absolute;
+  z-index: 0;
+  right: -3%;
+  top: 38%;
+  width: min(43%, 520px);
+  height: auto;
+  transform: translateY(-50%);
+  pointer-events: none;
+  filter: drop-shadow(6px 8px 0 rgba(0, 6, 18, .38));
+}
+
+/* keep the copy above it in every case */
+#masthead .masthead-content { position: relative; z-index: 1; }
+
+@media (max-width: 1080px) {
+  .hero-mascot { width: 42%; right: -6%; top: 40%; opacity: .55; }
+}
+
+@media (max-width: 860px) {
+  .hero-mascot { display: none; }
+}
+
+/* The copy takes the space above the horizon and centres itself
+   within it; the horizon is a flow sibling pinned after it. This is
+   what makes the overlap structurally impossible rather than merely
+   tuned away at a few breakpoints. */
+#masthead .masthead-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: clamp(20px, 4vw, 44px);
+}
+
+/* First section on the page — it does not need the full shared top
+   rhythm above it, and that padding was pushing the framed hero past
+   the fold. The copy never shrinks (flex-shrink 0) so it can never be
+   clipped by the ground's overflow:hidden; the horizon absorbs any
+   squeeze instead. */
+main > #masthead { padding-top: clamp(18px, 2.4vw, 34px); }
+#masthead .masthead-content { flex: 0 0 auto; }

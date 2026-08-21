@@ -1,0 +1,206 @@
+<script>
+/* year in the imprint line */
+(function () {
+  var y = document.getElementById('yr');
+  if (y) y.textContent = new Date().getFullYear();
+})();
+
+/* copy-to-clipboard on anything carrying data-copy, or any [data-copy-block] */
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e2) {}
+    ta.remove();
+    return ok;
+  }
+}
+/* The status word is written into a dedicated child element when the
+   control has one (the hero chip's .ico, a code block's label span).
+   Writing to the button's own textContent instead would erase its
+   other children — on the hero chip that wiped "$ cargo install
+   shotgun-proxy" and collapsed the pill mid-interaction. */
+function copyStatusTarget(btn) {
+  return btn.querySelector('[data-copy-status], .ico') ||
+         (btn.children.length === 0 ? btn : null);
+}
+
+document.querySelectorAll('[data-copy]').forEach(function (btn) {
+  /* Registered up front, not inside the handler. Setting aria-live in
+     the same call that mutates the text gives assistive tech no chance
+     to observe the region before it changes, so the first "copied" was
+     liable to be missed. */
+  var status = copyStatusTarget(btn);
+  if (status) status.setAttribute('aria-live', 'polite');
+
+  /* Four "copy" buttons in a row all announced as an indistinguishable
+     "copy, button". Name each one after the block it copies. */
+  if (!btn.hasAttribute('aria-label')) {
+    var block = btn.closest('[data-copy-block]') || btn.parentElement;
+    var name = block && block.querySelector('.mapping-code-name, .quickstart-code-name, .code-name, [data-copy-name]');
+    if (name && name.textContent.trim()) {
+      btn.setAttribute('aria-label', 'Copy ' + name.textContent.trim());
+    }
+  }
+
+  btn.addEventListener('click', async function () {
+    var src = btn.getAttribute('data-copy');
+    var text;
+    if (src === 'block') {
+      var scope = btn.closest('[data-copy-block]') ||
+                  btn.closest('section') || document;
+      var pre = scope.querySelector('pre');
+      if (!pre) return;
+      text = pre.textContent;
+    } else {
+      text = src;
+    }
+
+    var ok = await copyText(text);
+    var target = copyStatusTarget(btn);
+    if (!target) return;
+
+    if (!target.hasAttribute('data-copy-idle')) {
+      target.setAttribute('data-copy-idle', target.textContent);
+    }
+    var idle = target.getAttribute('data-copy-idle');
+
+    target.textContent = ok ? 'copied' : 'press ⌘C';
+    btn.classList.toggle('is-done', ok);
+
+    clearTimeout(btn._copyTimer);
+    btn._copyTimer = setTimeout(function () {
+      target.textContent = idle;
+      btn.classList.remove('is-done');
+    }, 1500);
+  });
+});
+</script>
+<script>
+/* ---- syntax highlighting ------------------------------------------
+   Runs over the page's own code blocks only. It reads pre.textContent
+   BEFORE rewriting innerHTML and stashes it on dataset.raw, so the
+   copy buttons keep copying clean source rather than the highlighted
+   markup. Language comes from data-lang; anything unlabelled is left
+   exactly as authored. ------------------------------------------- */
+(function () {
+  var esc = function (s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  };
+
+  /* Single pass. Chained .replace() calls corrupt the output because
+     later patterns match the markup earlier ones just inserted: a flag
+     regex hits the "-cmd" inside class="tok-cmd", and a string regex
+     hits the quotes around it. One regex with alternates, applied once
+     to the escaped source, never rescans what it wrote. */
+  function highlightShell(src) {
+    var re = /("(?:[^"\\]|\\.)*")|(https?:\/\/\S+)|(--[\w-]+)|(\s+)|([^\s]+)/g;
+    return esc(src).split('\n').map(function (line) {
+      if (/^\s*#/.test(line)) return '<span class="tok-c">' + line + '</span>';
+      if (!line.trim()) return line;
+      var wordIndex = 0;
+      return line.replace(re, function (m, str, url, flag, ws) {
+        if (str || url) return '<span class="tok-str">' + m + '</span>';
+        if (flag) return '<span class="tok-flag">' + m + '</span>';
+        if (ws) return m;
+        wordIndex++;
+        if (wordIndex === 1) return '<span class="tok-cmd">' + m + '</span>';
+        if (wordIndex === 2) return '<span class="tok-sub">' + m + '</span>';
+        return m;
+      });
+    }).join('\n');
+  }
+
+  function highlightToml(src) {
+    var re = /(#[^\n]*)|("(?:[^"\\]|\\.)*")|(\[\[?[^\]\n]+\]\]?)|\b(true|false)\b|\b(\d[\w.:+-]*)\b|([A-Za-z_][\w-]*)(?=\s*=)/g;
+    return esc(src).replace(re, function (m, c, s, t, b, n, k) {
+      if (c) return '<span class="tok-c">' + m + '</span>';
+      if (s) return '<span class="tok-str">' + m + '</span>';
+      if (t) return '<span class="tok-tbl">' + m + '</span>';
+      if (b) return '<span class="tok-bool">' + m + '</span>';
+      if (n) return '<span class="tok-num">' + m + '</span>';
+      return '<span class="tok-key">' + m + '</span>';
+    });
+  }
+
+  document.querySelectorAll('pre[data-lang]').forEach(function (pre) {
+    var raw = pre.textContent;
+    pre.dataset.raw = raw;
+    var lang = pre.getAttribute('data-lang');
+    if (lang === 'sh' || lang === 'shell' || lang === 'bash') {
+      pre.innerHTML = highlightShell(raw);
+    } else if (lang === 'toml') {
+      pre.innerHTML = highlightToml(raw);
+    }
+  });
+})();
+</script>
+<script>
+/* ---- scroll reveal -------------------------------------------------
+   Tags content itself rather than making every section's markup carry
+   attributes, so sections stay owned by their own files.
+
+   A plain scroll check rather than IntersectionObserver. IO only
+   reports elements whose intersection state changes, so jumping to an
+   anchor or to the page bottom never fires for the content it skipped
+   over, and whole sections stayed invisible. A rAF-throttled pass over
+   ~15 elements costs nothing and is correct for gradual scrolling,
+   jumps and anchor links alike.
+
+   Failsafes, because content stuck invisible is far worse than content
+   that just appears: reduced-motion reveals everything up front, and a
+   timer reveals anything still hidden after 2.5s. ------------------ */
+(function () {
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var targets = [];
+  document.querySelectorAll('main > section').forEach(function (sec) {
+    if (sec.id === 'masthead') return;          // the hero animates on load
+    var scope = sec.querySelector('.wrap') || sec;
+    var kids = Array.prototype.slice.call(scope.children);
+    if (!kids.length) kids = [sec];
+    kids.forEach(function (el, i) {
+      el.setAttribute('data-reveal', '');
+      el.style.setProperty('--reveal-delay', Math.min(i, 4) * 70 + 'ms');
+      targets.push(el);
+    });
+  });
+
+  function revealAll() {
+    targets.forEach(function (el) { el.classList.add('is-in'); });
+    targets = [];
+  }
+
+  if (reduced) { revealAll(); return; }
+
+  var ticking = false;
+  function check() {
+    ticking = false;
+    var limit = window.innerHeight * 0.94;
+    targets = targets.filter(function (el) {
+      if (el.getBoundingClientRect().top < limit) {
+        el.classList.add('is-in');
+        return false;
+      }
+      return true;
+    });
+    if (!targets.length) {
+      removeEventListener('scroll', onScroll);
+      removeEventListener('resize', onScroll);
+    }
+  }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(check);
+  }
+
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll, { passive: true });
+  check();
+  setTimeout(revealAll, 2500);
+})();
+</script>

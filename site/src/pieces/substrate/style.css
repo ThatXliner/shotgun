@@ -1,0 +1,263 @@
+/* ===================================================================
+   SUBSTRATE — the night ground.
+   Tokens (root), page reset, the stepped sky→ember gradient, the
+   halftone patch, ambient sky twinkle placement, the mesa horizon
+   (mesas + hero buttes + foreground ridge + cacti, all CSS-drawn,
+   hand-placed — never a repeating tile), and the one global grain pass.
+   =================================================================== */
+
+:root {
+  /* ---- sky / ground (stepped, not smooth — flat for ~55% then a
+     narrow choked-off ember band right at the horizon) ---- */
+  --sky-night: #020D19;
+  --sky-warm-1: #08131E;
+  --sky-transition: #1A191F;
+  --sky-ramp: #392424;
+  --sky-ember-peak: #A2340D;
+  --mesa-mid-fill: #1B1210;   /* dark mid-ground plateau, between the talus
+                                 and the black foreground ridge */
+  --mesa-bg-fill: #2A1B14;
+  --ground-floor: #070F17;
+  --ridge-fill: #05070B;
+  --butte-lit: #4A2415;      /* sampled off assets/banner.png buttes — a
+                                 muted, DARK terracotta, NOT a bright orange —
+                                 the reference reads far closer to silhouette
+                                 than to a lit daytime rock face */
+  --butte-mid: #593018;      /* second flat tone — sunlit upper shelf, just
+                                 below the cap rim; a subtle lift over --butte-
+                                 lit, not a bright band, and bounded by an
+                                 irregular hand-drawn edge, never a ruled line */
+  --butte-shadow: #23100A;   /* receding face, flat, no gradient, near-black */
+  --butte-window: #170B05;   /* small carved-recess accents on the rock face
+                                 — a flat tone darker than shadow, never a
+                                 gradient or a blur */
+  --butte-cap: #8C5A34;      /* thin lit rim sliver along each flat top */
+  --talus-upper: #3B2015;    /* flared skirt, band nearest the rock — hand-
+                                 terraced irregular tones, never a stepped
+                                 staircase silhouette */
+  --talus-mid: #2B1C18;
+  --talus-lower: #1B120D;    /* darkest band, blends toward the ground floor */
+
+  /* ---- universal ink outline (illustrated shapes only, law 1) ---- */
+  --ink-outline: #000F30;
+
+  /* ---- mascot material families, reserved for illustration pieces ---- */
+  --wood-highlight: #FEA050;
+  --wood-main: #D54609;
+  --wood-shadow: #B83603;
+  --wood-deep: #912400;
+  --steel-specular: #F9F9FD;
+  --steel-light: #D0D2DD;
+  --steel-base: #B3B8CC;
+  --steel-mid: #6C7793;
+  --steel-shadow: #53607E;
+  --amber-highlight: #FFA211;
+  --amber-main: #FEA410;
+  --amber-shadow: #B84F01;
+  --red-highlight: #F02F1F;
+  --red-main: #EE281B;
+  --red-mid: #D01B14;
+  --red-shadow: #BF120F;
+  --red-deep: #330000;
+
+  /* ---- cyan: the one saturated cool color, used once per view ---- */
+  --cyan-specular: #FFFFFF;
+  --cyan-light: #35E5F4;
+  --cyan-shadow: #00CFDE;
+  --cyan-bloom: #0BC5D5;
+
+  /* ---- wordmark ivory family ---- */
+  --ivory-top: #F3DEBF;
+  --ivory-bottom: #EED2AA;
+  --ivory-bright: #FBF2D7;
+  --ivory-flat: #F2DDBC;
+  --ivory-bevel: #856244;
+
+  /* ---- bronze / rope ornament family ---- */
+  --bronze-highlight: #FDCC97;
+  --bronze-light: #CAA070;
+  --bronze-mid: #9F734D;
+  --bronze-groove: #7F5E41;
+  --bronze-deep: #332721;
+  --bronze-flat: #9E6F4C;
+
+  /* ---- geometry ---- */
+  --outline-weight: 2px;             /* constant absolute weight, law 1 */
+  --rope-thickness: 13px;            /* ~1.47% of a banner-scale frame */
+  --rope-margin: 20px;                /* plain navy gap, rope to canvas edge */
+  --rope-corner-radius: 30px;         /* ~2x rope diameter */
+  --corner-star-size: calc(var(--rope-thickness) * 4.3);
+  --halftone-dot: 3px;
+  --halftone-pitch: 16px;
+  --grain-opacity: 0.035;
+  --wordmark-tilt: -3.6deg;
+
+  /* ---- fonts (declared here, loaded by the type piece) ---- */
+  --font-display: 'Alfa Slab One', serif;
+  --font-body: 'Bitter', serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+/* ---- minimal reset / foundation ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--sky-night);
+  color: var(--ivory-flat);
+}
+
+body {
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ---- global, once, near-invisible grain — law 9. A single flat
+   monochrome noise pass over the WHOLE page, not just the hero, and
+   not cranked up "for texture." Blend mode is `normal`, not `overlay`:
+   overlay is multiplicative near black (result ≈ 2·base·blend), so on
+   the near-black night sky it was compositing away to nothing and the
+   sky read as a perfectly smooth gradient. Normal alpha blending at
+   this opacity adds the same small, order-of-magnitude jitter (~1-5 of
+   255) regardless of how dark or light the pixel underneath is, which
+   is what the source composition actually measures — sky, rope and
+   silhouette all show the same amount of grain. ---- */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: normal;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-repeat: repeat;
+}
+
+/* ===================================================================
+   Hero ground — the stepped night→ember gradient. Flat for the first
+   half, a slow grey-brown warm-up, then a hard late ramp choked off
+   before it ever reads as a "sunset wash." No radial corner vignette
+   (the flat navy already reads as night) — the only vignette-like move
+   is the gradient's own dark floor at the bottom.
+   =================================================================== */
+.hero-ground {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--rope-corner-radius);
+  background: linear-gradient(
+    to bottom,
+    #010D19 0%,
+    #030F1B 58%,
+    #0A1520 72%,
+    #1E1B1E 81%,
+    #3D2620 87%,
+    #A2340D 90.5%,
+    #2B1C18 92.5%,
+    #070F17 100%
+  );
+  /* The hero used to reserve room for the horizon with
+     `padding-bottom: calc(... + 34%)`. Percentage padding resolves
+     against the containing block's WIDTH, not its height, so the
+     reservation shrank as the viewport narrowed — exactly when the
+     headline wrapped taller and needed more. Combined with
+     align-items:center that pushed the copy down behind the buttes:
+     measured 274px of overlap at 320px wide, with "Rust + axum"
+     completely hidden behind opaque rock from 500px down.
+
+     The horizon is now a flow item at the end of a column, so the
+     copy physically cannot sit on top of it at any width. */
+  --hero-pad-x: clamp(28px, 6vw, 64px);
+  --hero-pad-y: clamp(36px, 4.5vw, 60px);
+  padding: var(--hero-pad-y) var(--hero-pad-x) 0;
+  /* The hero was 1097px tall, so on a laptop the horizon and the
+     frame's bottom corners fell below the fold and the composition —
+     which is the frame plus the horizon — could never be seen whole.
+     Sized to the viewport instead, with a floor so it stays a hero on
+     short windows. */
+  min-height: min(560px, 68svh);
+  /* Deliberately NO max-height. The ground needs overflow:hidden for
+     its corner radius, so any cap risks slicing real copy — it clipped
+     the hero content at 1280x720. The horizon shrinks instead, and on
+     a short window the hero simply runs a little past the fold rather
+     than cutting text off. */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- halftone patch: a small, deliberately modest dot grid tucked
+   under the top rope border — not a texture that tiles the sky. ---- */
+.halftone-patch {
+  position: absolute;
+  left: 5.6%;
+  top: 8%;
+  width: 5.6%;
+  height: 9%;
+  background-image: radial-gradient(rgba(255, 255, 255, .3) 1.2px, transparent 1.6px);
+  background-size: var(--halftone-pitch) var(--halftone-pitch);
+  pointer-events: none;
+}
+
+/* ---- ambient sky twinkle: a handful of hand-placed instances of the
+   .star--twinkle motif (shape owned by ornament), never a repeated
+   tile — a real night sky doesn't repeat either. ---- */
+.sky-stars { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.sky-stars .star--twinkle { position: absolute; }
+.sky-stars i:nth-child(1) { top: 10%;  left: 58%; width: 22px; height: 22px; opacity: .55; transform: rotate(6deg); }
+.sky-stars i:nth-child(2) { top: 16%;  left: 9%;  width: 14px; height: 14px; opacity: .4;  transform: rotate(-14deg); }
+.sky-stars i:nth-child(3) { top: 30%;  left: 71%; width: 30px; height: 30px; opacity: .9;  transform: rotate(11deg); }
+.sky-stars i:nth-child(4) { top: 46%;  left: 26%; width: 12px; height: 12px; opacity: .35; transform: rotate(-4deg); }
+.sky-stars i:nth-child(5) { top: 8%;   left: 34%; width: 10px; height: 10px; opacity: .3;  transform: rotate(19deg); }
+.sky-stars i:nth-child(6) { top: 54%;  left: 63%; width: 16px; height: 16px; opacity: .45; transform: rotate(-9deg); }
+.sky-stars i:nth-child(7) { top: 22%;  left: 48%; width: 9px;  height: 9px;  opacity: .3;  transform: rotate(3deg); }
+.sky-stars i:nth-child(8) { top: 60%;  left: 12%; width: 11px; height: 11px; opacity: .3;  transform: rotate(-21deg); }
+.sky-stars i:nth-child(9) { top: 38%;  left: 90%; width: 13px; height: 13px; opacity: .4;  transform: rotate(15deg); }
+
+/* ===================================================================
+   Mesa horizon — one continuous, hand-composed SVG scene with four
+   stacked depth layers (back to front): distant background mesas,
+   the main hero buttes (broad, blocky Monument-Valley formations —
+   flat cel tones, vertical fluting, horizontal strata, stepped
+   talus), a dark mid-ground plateau, and a flat-black foreground
+   ridge carrying a saguaro + agave silhouettes. Drawn once, hand-
+   placed, never a repeating background-repeat tile. The landscape
+   itself carries NO ink outline (law-1's outline is reserved for the
+   mascot/ornaments) — every edge here is a butted flat-fill silhouette. -*/
+.mesa-horizon {
+  /* In flow as the last child of .hero-ground, bled back out to the
+     frame edge past the hero's horizontal padding. Its own aspect
+     ratio sets its height, so it never has to be a percentage of a
+     box whose height depends on how the headline wrapped. */
+  position: relative;
+  flex: 0 0 auto;
+  margin-inline: calc(var(--hero-pad-x) * -1);
+  /* Height comes from the viewport, not a fixed ratio, so the horizon
+     compresses on short windows instead of pushing the hero past the
+     fold. The SVG uses preserveAspectRatio="slice", so it crops from
+     the top rather than squashing. */
+  /* A direct trade: a taller band shows more of the buttes but pushes
+     the framed hero back below the fold, which is the thing that read
+     as "clipped" in the first place. Fitting wins. */
+  height: clamp(130px, 16svh, 240px);
+  flex: 0 1 auto;
+  min-height: 118px;
+  z-index: 1;
+  pointer-events: none;
+}
+.mesa-horizon .horizon-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

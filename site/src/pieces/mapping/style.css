@@ -1,0 +1,149 @@
+/* ===================================================================
+   MAPPING — the mappings.toml section. Four code samples on the
+   shared .panel surface from the layout contract (no ink outline:
+   law 1 reserves that stroke for illustrated shapes, not code chrome).
+   Scoped entirely under #mapping / .mapping- prefix.
+   =================================================================== */
+
+#mapping .mapping-head {
+  margin: 0 0 2.4rem;
+}
+
+#mapping .mapping-lead {
+  font-size: 1.05rem;
+}
+
+#mapping .mapping-lead code {
+  color: var(--ivory-bright, var(--ivory-flat));
+}
+
+/* ---- grid of samples ---- */
+#mapping .mapping-grid {
+  display: grid;
+  /* min(400px, 100%) instead of a bare 400px — the bare form forces a
+     400px-wide track even on viewports narrower than that (plus the
+     .wrap gutters), which pushed the page into horizontal overflow on
+     phones. Clamping the minimum to the available width lets it
+     collapse to one column properly instead of overflowing. */
+  grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
+  gap: 20px;
+}
+
+/* ---- the card. Reuses the shared .panel surface (layout contract)
+   rather than the illustration-only ink outline. .panel's own padding
+   is zeroed here because the header bar and code body each carry their
+   own flush padding — a card-within-a-card would double it up. ---- */
+#mapping .mapping-code {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+  padding: 0;
+}
+
+#mapping .mapping-code-bar {
+  display: flex;
+  align-items: center;
+  gap: .7em;
+  padding: .65em .9em;
+  background: color-mix(in srgb, var(--sky-night) 80%, white 4%);
+  border-bottom: 1px solid color-mix(in srgb, var(--sky-night) 60%, white 10%);
+}
+
+#mapping .mapping-dots {
+  display: inline-flex;
+  gap: 5px;
+  flex: none;
+}
+#mapping .mapping-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bronze-groove);
+  display: block;
+}
+#mapping .mapping-dots i:nth-child(2) { background: var(--bronze-mid); }
+#mapping .mapping-dots i:nth-child(3) { background: var(--bronze-light); }
+
+#mapping .mapping-code-name {
+  font-family: var(--font-mono);
+  font-size: .76rem;
+  letter-spacing: .02em;
+  color: var(--bronze-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#mapping .mapping-copy {
+  margin-left: auto;
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: .74rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  padding: .3em .5em;
+  border-radius: 5px;
+  transition: color .15s ease, background-color .15s ease;
+}
+#mapping .mapping-copy:hover { color: var(--ivory-flat); background: color-mix(in srgb, var(--sky-night) 70%, white 8%); }
+#mapping .mapping-copy:focus-visible { outline: 2px solid var(--cyan-light); outline-offset: 2px; }
+#mapping .mapping-copy.is-done { color: var(--cyan-light); }
+
+/* ---- the code body. Legibility first: high-contrast ivory default,
+   two secondary tones (bronze for structure, dim bronze for comments)
+   pulled straight from the token set — no new hues invented. ---- */
+#mapping .mapping-pre {
+  margin: 0;
+  padding: 1.05em 1.15em 1.2em;
+  font-size: .83rem;
+  line-height: 1.68;
+  overflow-x: auto;
+  color: var(--ivory-flat);
+}
+#mapping .mapping-pre code { background: none; padding: 0; font-size: 1em; }
+
+#mapping .mapping-pre .h {
+  color: var(--ivory-bright, #FBF2D7);
+  font-weight: 700;
+}
+#mapping .mapping-pre .k { color: var(--bronze-light); }
+#mapping .mapping-pre .c {
+  /* was --bronze-mid: 4.40:1 on the panel ground, under WCAG AA.
+     --bronze-light measures 7.67:1 and is what the quickstart
+     terminal already uses for the same semantic role. */
+  color: var(--bronze-light);
+  font-style: italic;
+}
+
+/* ---- "the honest parts" — candour, not an error state. A thin
+   bronze rule (never red — red stays reserved for the mascot bandana)
+   marks it as a distinct, deliberate admission rather than a fault. ---- */
+#mapping .mapping-code--honest {
+  border-top: 2px solid var(--bronze-flat);
+}
+#mapping .mapping-honest-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  white-space: nowrap;
+}
+#mapping .mapping-honest-tag .star--bullet {
+  width: 9px;
+  height: 9px;
+}
+
+@media (max-width: 560px) {
+  #mapping .mapping-code-name { display: none; }
+}

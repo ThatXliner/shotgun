@@ -1,0 +1,46 @@
+<section id="anvil">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="anvil-head">
+        <span class="anvil-badge" aria-hidden="true">
+          <span class="star star--compass"></span>
+        </span>
+        <span class="eyebrow">Flagship use case</span>
+      </div>
+
+      <h2>Anvil points GitHub tooling at Forgejo.</h2>
+      <p>
+        Anvil is a curated <code>mappings.toml</code> on top of this proxy. It lets GitHub tools like
+        <code>gh</code>, Renovate, and CI scripts talk to a self-hosted Forgejo instance with no
+        client-side changes.
+      </p>
+      <p>It drives Shotgun's work against real specs, not toy ones.</p>
+    </div>
+
+    <div class="cta">
+      <a class="btn anvil-link" href="https://github.com/ThatXliner/anvil">View Anvil <span aria-hidden="true">↗</span></a>
+    </div>
+
+    <div class="anvil-exercise">
+      <div class="anvil-exercise-label">What that exercises</div>
+      <ul class="anvil-list">
+        <li>A client that hardcodes a base path it doesn't own (<code>/api/v3/…</code>)</li>
+        <li>Path params that disagree (<code>issue_number</code> vs <code>index</code>)</li>
+        <li>Method changes across the same resource (<code>PUT</code> → <code>PATCH</code>)</li>
+        <li>Fields one side has and the other doesn't, in both directions</li>
+        <li>Query params and Link headers translated between two pagination conventions</li>
+      </ul>
+    </div>
+
+    <div class="anvil-status panel">
+      <span class="star star--bullet anvil-status-mark" aria-hidden="true"></span>
+      <div class="anvil-status-body">
+        <h3>The core works, but this is not a finished product.</h3>
+        <p>
+          Shotgun handles OpenAPI 3.0/3.1 and Swagger 2.0, and the proxy runs. Anvil is
+          hardening it against real specs. MIT licensed.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

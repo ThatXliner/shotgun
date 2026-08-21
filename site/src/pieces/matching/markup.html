@@ -1,0 +1,39 @@
+<section id="matching">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Matching</span>
+      <h2>Shotgun only maps what it can prove.</h2>
+      <p class="matching-lead">
+        It guesses nothing at request time. When it can't prove a match, it
+        leaves the entry unmapped and says so.
+      </p>
+    </div>
+
+    <div class="matching-grid">
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">/</span>Endpoints</h3>
+        <p>Shotgun matches on path and HTTP method, ignoring <code>{param}</code> names. If that misses, it tries <code>operationId</code>. Anything left over stays unmapped.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">=</span>Fields</h3>
+        <p>A field maps when the name matches exactly and the type fits. If the types clash, Shotgun flags it and forces nothing.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">↺</span>Renames</h3>
+        <p>Shotgun never writes one. You write every rename, then mark it <code>edited = true</code> so <code>sync</code> leaves it alone.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">+</span>Defaults and drops</h3>
+        <p>A field that only one side has becomes a <code>default</code> holding a zero value, or a <code>drop</code> that clients never see.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">⌥</span>Nested schemas</h3>
+        <p>Shotgun diffs a <code>User</code> inside a <code>Repository</code> once. It reuses that map every time the type shows up, through a named <code>[[schemas]]</code> entry.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">»</span>Pagination</h3>
+        <p>Shotgun remaps query params between the two styles. It also rewrites <code>Link</code> header URLs to point back at the proxy.</p>
+      </div>
+    </div>
+  </div>
+</section>

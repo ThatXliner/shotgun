@@ -1,0 +1,86 @@
+/* ===================================================================
+   MATCHING — heading, lead, and six panels describing the matching
+   rules. UI panels, not illustration: NO ink-outline on the cards
+   themselves (law 1 / DECISIONS.md #4). The per-panel mark is UI
+   chrome, not mascot material — DECISIONS.md's amber clarification
+   reserves --amber-* for the logo's connector square alone, so six
+   amber chips in a feature grid is exactly the "generic icon tile"
+   failure the brief warns about. The mark instead borrows the bronze
+   keyline already used on .panel--keyed: a hairline bronze frame
+   (not a filled block) around a flat bronze glyph, no gradient sheen,
+   no ink outline (that stays reserved for actual illustration).
+   =================================================================== */
+
+#matching .matching-lead {
+  margin: 0 0 clamp(2rem, 4vw, 2.8rem);
+  font-size: 1.05rem;
+}
+
+#matching .matching-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  #matching .matching-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  #matching .matching-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- card: the shared .panel / .panel--keyed surface from the layout
+   contract (squared plate, stepped tonal bevel, bronze keyed edge) —
+   chrome stays outline-free per DECISIONS.md #4. Radius comes from
+   .panel and is distinct from the button chamfer and the rope's own
+   corner radius, so no single --radius stands in for three different
+   geometric facts. ---- */
+#matching .matching-card {
+  padding: 1.5rem 1.55rem 1.65rem;
+}
+
+#matching .matching-card h3 {
+  display: flex;
+  align-items: center;
+  gap: .65em;
+  font-size: 1.05rem;
+  margin-bottom: .55em;
+}
+
+#matching .matching-card p {
+  font-size: .95rem;
+  margin: 0;
+  max-width: 42ch;
+}
+
+#matching .matching-card code {
+  font-size: .84em;
+}
+
+/* ---- the mark: UI chrome, not illustration, so it stays outline-free
+   (that stroke is reserved for drawn shapes — law 1). A hairline bronze
+   keyline frame, same family as .panel--keyed's edge accent, around a
+   flat bronze glyph — no fill block, no highlight sheen, so it reads as
+   this page's own small-mark vocabulary rather than a coloured icon
+   tile. The six glyphs (/, =, ↺, +, ⌥, ») stay mono for legibility and
+   keep each panel visually distinct. */
+#matching .mark {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: 1.5px solid var(--bronze-flat);
+  background: color-mix(in srgb, var(--bronze-flat) 12%, transparent);
+  color: var(--bronze-light);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: .92rem;
+  line-height: 1;
+  /* h3 carries a horizontal scaleX(.78) for the display face (law 2 /
+     DECISIONS.md #2) — invert it here so the mark stays a true square
+     instead of squashing into an oval. */
+  transform: scaleX(1.282);
+}

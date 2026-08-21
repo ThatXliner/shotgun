@@ -1,0 +1,108 @@
+<section id="mapping">
+  <div class="wrap">
+    <div class="mapping-head sec-head">
+      <span class="eyebrow">mappings.toml</span>
+      <h2>One file you can read in a diff.</h2>
+      <p class="mapping-lead">
+        The whole translation lives in one TOML file. You can review it, version it, and mark
+        entries <code>edited = true</code> so a later sync skips them.
+      </p>
+    </div>
+
+    <div class="mapping-grid">
+
+      <article class="panel mapping-code" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">mappings.toml &mdash; settings</span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="h">[settings]</span>
+<span class="c"># prepended to every target path</span>
+<span class="k">target_base_path</span> = "/api/v1"
+<span class="c"># stripped from the request before matching</span>
+<span class="k">source_base_path</span> = "/api/v3"
+<span class="c"># "reject" (501) or "passthrough"</span>
+<span class="k">unmapped_endpoint_behavior</span> = "reject"
+<span class="c"># "passthrough" / "drop" / "drop_unknown"</span>
+<span class="k">unmapped_field_behavior</span> = "passthrough"
+
+<span class="h">[settings.pagination]</span>
+<span class="k">source_style</span> = "link_header"
+<span class="k">target_style</span> = "link_header"
+<span class="k">rewrite_link_urls</span> = true
+
+<span class="h">[settings.pagination.param_map]</span>
+<span class="k">per_page</span> = "limit"</code></pre>
+      </article>
+
+      <article class="panel mapping-code" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">mappings.toml &mdash; an endpoint</span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="h">[[endpoints]]</span>
+<span class="k">source</span> = "GET /repos/{owner}/{repo}/issues/{issue_number}"
+<span class="k">target</span> = "GET /repos/{owner}/{repo}/issues/{index}"
+<span class="k">edited</span> = true          <span class="c"># sync will not overwrite this</span>
+
+<span class="h">[endpoints.path_params]</span>
+<span class="k">issue_number</span> = "index"
+
+<span class="h">[endpoints.response.renames]</span>
+<span class="k">number</span> = "index"       <span class="c"># humans write these, never the diff</span>
+
+<span class="h">[endpoints.response.defaults]</span>
+<span class="k">draft</span> = false          <span class="c"># source-only field, synthesized</span>
+<span class="k">labels</span> = []
+
+<span class="h">[endpoints.response]</span>
+<span class="k">drops</span> = ["due_date"]   <span class="c"># target-only, hidden from clients</span>
+
+<span class="h">[[endpoints.response.nested]]</span>
+<span class="k">path</span> = "user"
+<span class="k">schema_map</span> = "User"    <span class="c"># reuse a [[schemas]] entry</span></code></pre>
+      </article>
+
+      <article class="panel mapping-code" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">reusable schema</span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="h">[[schemas]]</span>
+<span class="k">name</span> = "User"
+<span class="k">edited</span> = true
+
+<span class="h">[schemas.renames]</span>
+<span class="k">login</span> = "username"
+
+<span class="h">[schemas.defaults]</span>
+<span class="k">site_admin</span> = false</code></pre>
+      </article>
+
+      <article class="panel mapping-code mapping-code--honest" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">the honest parts</span>
+          <span class="mapping-honest-tag">
+            <span class="star star--bullet" aria-hidden="true"></span>
+            admits it
+          </span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="c"># No target equivalent exists; returns 501 at runtime</span>
+<span class="h">[[endpoints]]</span>
+<span class="k">source</span> = "POST /repos/{owner}/{repo}/issues/{issue_number}/lock"
+<span class="k">target</span> = ""
+<span class="k">note</span> = "Forgejo has no issue locking API"
+
+<span class="c"># Same name, incompatible types; flagged, left untouched</span>
+<span class="h">[endpoints.response.type_conflicts]</span>
+<span class="k">reactions</span> = "object vs array"</code></pre>
+      </article>
+
+    </div>
+  </div>
+</section>

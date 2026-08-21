@@ -1,0 +1,74 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+# Allow the workflow to publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. Don't cancel a run midway through publishing.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # index.html is generated from site/src by build.py. Building here
+      # rather than trusting the committed copy means a stale index.html
+      # can never ship: whatever is in src/ is what goes live.
+      - name: Build the page
+        run: python3 site/build.py
+
+      # The copy was written to a numeric bar. Enforcing it in CI stops a
+      # later edit from quietly regressing readability.
+      - name: Check copy constraints
+        run: python3 site/copycheck.py
+
+      - name: Warn if the committed index.html was stale
+        run: |
+          if ! git diff --quiet -- site/index.html; then
+            echo "::warning::site/index.html was out of date in this commit; deploying the freshly built version."
+            git --no-pager diff --stat -- site/index.html
+          fi
+
+      # Publish only what the browser needs. src/, build.py, copycheck.py
+      # and shoot.mjs are how the page is made, not part of the page.
+      - name: Stage the publishable site
+        run: |
+          mkdir -p _site/assets
+          cp site/index.html _site/
+          cp -R site/assets/. _site/assets/
+          touch _site/.nojekyll
+          find _site -type f | sort
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

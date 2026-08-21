@@ -1,0 +1,270 @@
+<section id="masthead">
+  <span class="eyebrow"><b>OpenAPI</b> → <b>OpenAPI</b> translation proxy</span>
+  <h1>Turn any REST API into the shape of another.</h1>
+  <p class="sub">Shotgun is a reverse proxy generator for OpenAPI specs.</p>
+  <div class="cta">
+    <a class="btn primary" href="#quickstart">Get started</a>
+    <button class="copyline" data-copy="cargo install shotgun-proxy" type="button">
+      <span class="p">$</span><span>cargo install shotgun-proxy</span><span class="ico">copy</span>
+    </button>
+  </div>
+  <div class="hero-meta">
+    <span>OpenAPI 3.0 / 3.1 + Swagger 2.0</span>
+    <span>Deterministic matching</span>
+    <span>Rust + axum</span>
+  </div>
+</section>
+
+<section id="idea">
+  <div class="kicker">The idea</div>
+  <h2>APIs in the same domain already share most of their shape.</h2>
+  <p>
+    Git forges, payment processors, and CMS platforms usually share 60 to 80 percent of their structure.
+    Shotgun maps the obvious parts and leaves you a checklist for the rest.
+  </p>
+
+  <div class="flow">
+    <div class="flow-card">
+      <div class="lbl">Client thinks it's calling</div>
+      <div class="val">GET /<wbr>repos/<wbr>{owner}/<wbr>{repo}/<wbr>issues/<wbr>{issue_number}</div>
+      <div class="note"><code>gh</code>, Renovate, and CI scripts run unmodified.</div>
+    </div>
+    <div class="flow-arrow">──▶</div>
+    <div class="flow-card mid">
+      <div class="lbl">Shotgun rewrites</div>
+      <div class="val">path_params · renames · defaults · drops</div>
+      <div class="note">Driven by <code>mappings.toml</code>. Nothing guessed at runtime.</div>
+    </div>
+    <div class="flow-arrow">──▶</div>
+    <div class="flow-card">
+      <div class="lbl">Upstream gets</div>
+      <div class="val">GET /<wbr>api/<wbr>v1/<wbr>repos/<wbr>{owner}/<wbr>{repo}/<wbr>issues/<wbr>{index}</div>
+      <div class="note">The response comes back in the shape the client expected.</div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="kicker">Quick start</div>
+  <h2>Two commands and one edit get you a proxy.</h2>
+  <p>Diff, review, serve. When a spec changes, re-diff without losing your edits.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="n">01</div>
+      <h3>Diff the specs</h3>
+      <p><code>shotgun init</code> matches endpoints and fields, then writes a <code>mappings.toml</code>. It leaves blank anything it can't resolve.</p>
+    </div>
+    <div class="step">
+      <div class="n">02</div>
+      <h3>Fill in the gaps</h3>
+      <p>Anything left as <code>target = ""</code> is your todo list. Mark what you touch <code>edited = true</code> to protect it from sync.</p>
+    </div>
+    <div class="step">
+      <div class="n">03</div>
+      <h3>Serve it</h3>
+      <p>Point <code>--target-url</code> at the upstream. Clients keep speaking the source API's shape.</p>
+    </div>
+  </div>
+
+  <div class="code">
+    <div class="code-bar">
+      <div class="dots"><i></i><i></i><i></i></div>
+      <span class="name">terminal</span>
+      <button class="copy" type="button">copy</button>
+    </div>
+    <pre data-lang="sh"># 1. Diff two specs and generate a mapping file
+shotgun init --source github-api.json --target forgejo-api.json --output mappings.toml
+
+# 2. Review mappings.toml, fill in anything left as target = ""
+
+# 3. Run the proxy
+shotgun serve --mappings mappings.toml --target-url https://forgejo.example.com
+
+# 4. Clients call Shotgun in the GitHub shape; it translates on the fly
+curl http://localhost:8080/repos/owner/repo
+
+# When specs change, re-diff without losing your edits.
+shotgun sync --source github-api-v2.json --target forgejo-api-v2.json --mappings mappings.toml
+
+# Check a mapping file for problems
+shotgun validate --mappings mappings.toml</pre>
+  </div>
+</section>
+
+<section id="matching">
+  <div class="kicker">Matching</div>
+  <h2>Shotgun only maps what it can prove.</h2>
+  <p>
+    It guesses nothing at request time. When it can't prove a match, it
+    leaves the entry unmapped and says so.
+  </p>
+
+  <div class="grid">
+    <div class="card">
+      <h3><span class="mark">/</span>Endpoints</h3>
+      <p>Shotgun matches on path and HTTP method, ignoring <code>{param}</code> names. If that misses, it tries <code>operationId</code>. Anything left over stays unmapped.</p>
+    </div>
+    <div class="card">
+      <h3><span class="mark">=</span>Fields</h3>
+      <p>A field maps when the name matches exactly and the type fits. If the types clash, Shotgun flags it and forces nothing.</p>
+    </div>
+    <div class="card">
+      <h3><span class="mark">↺</span>Renames</h3>
+      <p>Shotgun never writes one. You write every rename, then mark it <code>edited = true</code> so <code>sync</code> leaves it alone.</p>
+    </div>
+    <div class="card">
+      <h3><span class="mark">+</span>Defaults and drops</h3>
+      <p>A field that only one side has becomes a <code>default</code> holding a zero value, or a <code>drop</code> that clients never see.</p>
+    </div>
+    <div class="card">
+      <h3><span class="mark">⌥</span>Nested schemas</h3>
+      <p>Shotgun diffs a <code>User</code> inside a <code>Repository</code> once. It reuses that map every time the type shows up, through a named <code>[[schemas]]</code> entry.</p>
+    </div>
+    <div class="card">
+      <h3><span class="mark">»</span>Pagination</h3>
+      <p>Shotgun remaps query params between the two styles. It also rewrites <code>Link</code> header URLs to point back at the proxy.</p>
+    </div>
+  </div>
+</section>
+
+<section id="mapping">
+  <div class="kicker">mappings.toml</div>
+  <h2>One file you can read in a diff.</h2>
+  <p>
+    The whole translation lives in one TOML file. You can review it, version it, and mark
+    entries <code>edited = true</code> so a later sync skips them.
+  </p>
+
+  <div class="two">
+    <div class="code">
+      <div class="code-bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="name">mappings.toml — settings</span>
+        <button class="copy" type="button">copy</button>
+      </div>
+      <pre data-lang="toml">[settings]
+# prepended to every target path
+target_base_path = "/api/v1"
+# stripped from the request before matching
+source_base_path = "/api/v3"
+# "reject" (501) or "passthrough"
+unmapped_endpoint_behavior = "reject"
+# "passthrough" / "drop" / "drop_unknown"
+unmapped_field_behavior = "passthrough"
+
+[settings.pagination]
+source_style = "link_header"
+target_style = "link_header"
+rewrite_link_urls = true
+
+[settings.pagination.param_map]
+per_page = "limit"</pre>
+    </div>
+
+    <div class="code">
+      <div class="code-bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="name">mappings.toml — an endpoint</span>
+        <button class="copy" type="button">copy</button>
+      </div>
+      <pre data-lang="toml">[[endpoints]]
+source = "GET /repos/{owner}/{repo}/issues/{issue_number}"
+target = "GET /repos/{owner}/{repo}/issues/{index}"
+edited = true          # sync will not overwrite this
+
+[endpoints.path_params]
+issue_number = "index"
+
+[endpoints.response.renames]
+number = "index"       # humans write these, never the diff
+
+[endpoints.response.defaults]
+draft = false          # source-only field, synthesized
+labels = []
+
+[endpoints.response]
+drops = ["due_date"]   # target-only, hidden from clients
+
+[[endpoints.response.nested]]
+path = "user"
+schema_map = "User"    # reuse a [[schemas]] entry</pre>
+    </div>
+  </div>
+
+  <div class="two" style="margin-top:16px">
+    <div class="code">
+      <div class="code-bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="name">reusable schema</span>
+        <button class="copy" type="button">copy</button>
+      </div>
+      <pre data-lang="toml">[[schemas]]
+name = "User"
+edited = true
+
+[schemas.renames]
+login = "username"
+
+[schemas.defaults]
+site_admin = false</pre>
+    </div>
+
+    <div class="code">
+      <div class="code-bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="name">the honest parts</span>
+        <button class="copy" type="button">copy</button>
+      </div>
+      <pre data-lang="toml"># No target equivalent exists; returns 501 at runtime
+[[endpoints]]
+source = "POST /repos/{owner}/{repo}/issues/{issue_number}/lock"
+target = ""
+note = "Forgejo has no issue locking API"
+
+# Same name, incompatible types; flagged, left untouched
+[endpoints.response.type_conflicts]
+reactions = "object vs array"</pre>
+    </div>
+  </div>
+</section>
+
+<section id="anvil">
+  <span class="tag">Flagship use case</span>
+  <h2>Anvil points GitHub tooling at Forgejo.</h2>
+  <p>
+    Anvil is a curated <code>mappings.toml</code> on top of this proxy. It lets GitHub tools like
+    <code>gh</code>, Renovate, and CI scripts talk to a self-hosted Forgejo instance with no
+    client-side changes.
+  </p>
+  <p>It drives Shotgun's work against real specs, not toy ones.</p>
+  <div class="cta">
+    <a class="btn" href="https://github.com/ThatXliner/anvil">View Anvil ↗</a>
+  </div>
+
+  <div class="lbl">What that exercises</div>
+  <ul>
+    <li>A client that hardcodes a base path it doesn't own (<code>/api/v3/…</code>)</li>
+    <li>Path params that disagree (<code>issue_number</code> vs <code>index</code>)</li>
+    <li>Method changes across the same resource (<code>PUT</code> → <code>PATCH</code>)</li>
+    <li>Fields one side has and the other doesn't, in both directions</li>
+    <li>Query params and Link headers translated between two pagination conventions</li>
+  </ul>
+
+  <div class="status">
+    <h3>The core works, but this is not a finished product.</h3>
+    <p>
+      Shotgun handles OpenAPI 3.0/3.1 and Swagger 2.0, and the proxy runs. Anvil is
+      hardening it against real specs. MIT licensed.
+    </p>
+  </div>
+</section>
+
+<section id="colophon">
+  <p>MIT · built with Rust + axum</p>
+  <nav>
+    <a href="https://github.com/ThatXliner/shotgun">GitHub</a>
+    <a href="https://crates.io/crates/shotgun-proxy">crates.io</a>
+    <a href="https://github.com/ThatXliner/anvil">Anvil</a>
+  </nav>
+</section>

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="Shotgun — turn any REST API into the shape of another" width="100%">
+  <img src="assets/banner.png" alt="Shotgun — one API shape in, another out" width="100%">
 </p>
 
 # Shotgun

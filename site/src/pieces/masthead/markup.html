@@ -1,0 +1,256 @@
+<main>
+<section id="masthead">
+  <div class="wrap">
+    <div class="rope-frame">
+      <span class="star star--sparkle corner tl" aria-hidden="true"></span>
+      <span class="star star--sparkle corner tr" aria-hidden="true"></span>
+      <span class="star star--sparkle corner bl" aria-hidden="true"></span>
+      <span class="star star--sparkle corner br" aria-hidden="true"></span>
+
+      <div class="hero-ground">
+        <div class="halftone-patch" aria-hidden="true"></div>
+
+        <div class="sky-stars" aria-hidden="true">
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+        </div>
+
+        <!-- The banner composes as mascot opposite wordmark. Without it the
+             hero's right half is empty night sky at desktop widths. Decorative
+             only — the wordmark already carries the name. -->
+        <img class="hero-mascot" src="assets/logo.png" alt="" aria-hidden="true"
+             width="900" height="607" loading="eager" decoding="async">
+
+        <div class="masthead-content">
+          <img class="wordmark-lockup" src="assets/wordmark.png" alt="Shotgun" width="852" height="344">
+
+          <span class="eyebrow"><b>OpenAPI</b> → <b>OpenAPI</b> translation proxy</span>
+          <h1>Turn any REST API into the shape of another.</h1>
+          <p class="sub">Shotgun is a reverse proxy generator for OpenAPI specs.</p>
+          <div class="cta">
+            <a class="btn primary" href="#quickstart">Get started</a>
+            <button class="copyline" data-copy="cargo install shotgun-proxy" type="button" aria-label="Copy install command: cargo install shotgun-proxy">
+              <span class="p">$</span><span>cargo install shotgun-proxy</span><span class="ico">copy</span>
+            </button>
+          </div>
+          <div class="hero-meta">
+            <span>OpenAPI 3.0 / 3.1 + Swagger 2.0</span>
+            <span>Deterministic matching</span>
+            <span>Rust + axum</span>
+          </div>
+        </div>
+
+        <div class="mesa-horizon" aria-hidden="true">
+          <svg class="horizon-art" viewBox="0 0 1600 640" preserveAspectRatio="xMidYMax slice" focusable="false">
+            <defs>
+              <radialGradient id="emberAmbient" cx="50%" cy="100%" r="60%">
+                <stop offset="0%" stop-color="#C8460F" stop-opacity="0.32"/>
+                <stop offset="25%" stop-color="#B23D0F" stop-opacity="0.2"/>
+                <stop offset="50%" stop-color="#A2340D" stop-opacity="0.1"/>
+                <stop offset="75%" stop-color="#A2340D" stop-opacity="0.03"/>
+                <stop offset="100%" stop-color="#A2340D" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="emberHot" cx="50%" cy="100%" r="60%">
+                <stop offset="0%" stop-color="#E86A22" stop-opacity="0.38"/>
+                <stop offset="30%" stop-color="#C8460F" stop-opacity="0.18"/>
+                <stop offset="60%" stop-color="#A2340D" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#A2340D" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="glowSoften" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="14"/>
+              </filter>
+
+              <!-- agave / scrub fan: irregular converging spikes, not one repeated triangle -->
+              <path id="agave" d="M14,30 L9,11 L11,2 L13,14 L15,0 L17,15 L20,4 L21,13 L25,9 L18,30 Z"/>
+
+              <!-- hero buttes — broad, blocky, Monument-Valley masses built as a low
+                   irregular-stepped shoulder rising to a mostly-FLAT cap with a small
+                   hand-varied wobble (never a symmetric repeated zigzag). Width is
+                   deliberately greater than height so these read as landforms, not
+                   towers. -->
+              <clipPath id="clipT1">
+                <path d="M210,420 L210,388 L232,382 L232,335 L262,326 L262,275 L288,264 L288,225 L299,214 L313,219 L327,199 L349,209 L361,197 L379,211 L390,201 L407,213 L423,203 L441,209 L449,198 L467,208 L484,215 L484,258 L512,266 L512,312 L538,320 L538,368 L564,376 L564,420 L600,420 Z"/>
+              </clipPath>
+              <clipPath id="clipT2">
+                <path d="M540,420 L540,395 L556,388 L556,350 L574,342 L574,300 L588,285 L600,296 L613,278 L631,289 L646,281 L660,291 L660,315 L676,322 L676,360 L692,368 L692,420 L740,420 Z"/>
+              </clipPath>
+              <clipPath id="clipT3">
+                <path d="M1020,428 L1020,404 L1038,396 L1038,352 L1054,336 L1063,347 L1080,326 L1093,338 L1108,330 L1122,341 L1144,332 L1144,368 L1164,376 L1164,428 L1220,428 Z"/>
+              </clipPath>
+            </defs>
+
+            <!-- ember glow: tight, low, brightest directly behind each hero cluster,
+                 several irregular overlapping blobs (not one symmetric wash) so the
+                 diffusion reads uneven, falling off quickly above the horizon. Softened
+                 with a blur so no hard ellipse rim ever reads as a drawn shape. -->
+            <g filter="url(#glowSoften)">
+              <ellipse cx="460" cy="577" rx="230" ry="60" fill="url(#emberAmbient)"/>
+              <ellipse cx="410" cy="568" rx="125" ry="40" fill="url(#emberHot)"/>
+              <ellipse cx="580" cy="564" rx="100" ry="35" fill="url(#emberHot)"/>
+              <ellipse cx="1160" cy="577" rx="195" ry="58" fill="url(#emberAmbient)"/>
+              <ellipse cx="1180" cy="568" rx="112" ry="38" fill="url(#emberHot)"/>
+            </g>
+
+            <!-- layer 1: distant low-contrast mesas, furthest back — irregular eroded
+                 silhouettes with uneven bumps, never a clean regular polygon -->
+            <g fill="var(--mesa-bg-fill)">
+              <path d="M20,506 L30,486 L44,478 L58,474 L74,481 L88,470 L104,477 L120,490 L134,484 L148,504 L152,507 Z"/>
+              <path d="M810,505 L820,486 L834,474 L852,468 L868,476 L886,466 L904,473 L920,486 L938,480 L954,497 L964,506 Z"/>
+              <path d="M1420,508 L1428,488 L1440,474 L1456,466 L1470,472 L1484,460 L1500,467 L1514,480 L1528,473 L1544,489 L1558,503 L1566,509 Z"/>
+            </g>
+
+            <!-- layer 2: main hero cluster — a broad, blocky twin-butte mass sharing
+                 one flared, hand-terraced talus skirt (irregular bands, never a
+                 mechanical staircase). No ink outline on the landscape (law 1 is for
+                 illustrated mascot/ornament shapes only). -->
+            <g class="butte-cluster">
+              <path fill="var(--talus-upper)" d="M170,414.9 L234.7,423.7 L278.6,419.9 L329.3,422.1 L391.9,414.3 L427.9,428.2 L478.1,433.4 L513.1,425.1 L573.4,416.2 L641.5,425.6 L677.5,413.4 L731.5,426.1 L779.8,416 L790,413.4 L820,448.3 L814.8,453.5 L748.6,450.8 L702.5,452.4 L666.5,441.9 L622.1,442.9 L568.1,457.9 L498.2,457 L449.5,451.8 L408.9,458.4 L352.7,467.6 L306.9,464.3 L246.1,459 L208.2,445 L140,461.2 Z"/>
+              <path fill="var(--talus-mid)" d="M140,461.2 L208.2,445 L246.1,459 L306.9,464.3 L352.7,467.6 L408.9,458.4 L449.5,451.8 L498.2,457 L568.1,457.9 L622.1,442.9 L666.5,441.9 L702.5,452.4 L748.6,450.8 L814.8,453.5 L820,448.3 L850,491.7 L815.3,491.8 L763.7,495 L727.6,482.6 L672,492.7 L634.7,493.1 L573.8,497.1 L508.4,496.5 L468.1,491.8 L416.5,494.4 L365,497.9 L321.8,481.7 L257.5,476.3 L220.2,489.8 L164,484.1 L110,481.2 Z"/>
+              <path fill="var(--talus-lower)" d="M110,481.2 L164,484.1 L220.2,489.8 L257.5,476.3 L321.8,481.7 L365,497.9 L416.5,494.4 L468.1,491.8 L508.4,496.5 L573.8,497.1 L634.7,493.1 L672,492.7 L727.6,482.6 L763.7,495 L815.3,491.8 L850,491.7 L900,520 L60,520 Z"/>
+
+              <g clip-path="url(#clipT1)">
+                <rect x="200" y="195" width="410" height="235" fill="var(--butte-lit)"/>
+                <path fill="var(--butte-mid)" d="M195,190 L615,190 L615,293.6 L605.3,290.6 L565.2,303.9 L534.7,288.7 L479.8,294.4 L438.6,296.6 L405.2,298.9 L356.7,289.7 L307.7,291.2 L274.9,289.5 L227.8,294.1 L195,287.2 Z"/>
+                <rect x="470" y="195" width="140" height="235" fill="var(--butte-shadow)"/>
+                <path stroke="var(--butte-cap)" stroke-width="3.5" stroke-opacity=".85" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M288,225 L299,214 L313,219 L327,199 L349,209 L361,197 L379,211 L390,201 L407,213 L423,203 L441,209 L449,198 L467,208 L484,215"/>
+                <g class="strata" stroke="#170A05" fill="none" stroke-linecap="round">
+                  <path d="M234,296 L592,304" stroke-width="2.7" stroke-opacity="0.21"/>
+                  <path d="M228,358 L588,353" stroke-width="3.9" stroke-opacity="0.23"/>
+                </g>
+                <g class="flute" stroke="#150803" fill="none" stroke-linecap="round">
+                  <path d="M231.2,343.7 Q228.7,314.8 231.2,300.4" stroke-width="0.85" stroke-opacity="0.22"/>
+                  <path d="M248.8,415 Q249.0,324.9 248.8,227.0" stroke-width="1.55" stroke-opacity="0.26"/>
+                  <path d="M256.7,404.7 Q259.4,363.1 256.7,309.9" stroke-width="1.27" stroke-opacity="0.17"/>
+                  <path d="M273.0,415 Q275.1,305.8 273.0,202.2" stroke-width="2.07" stroke-opacity="0.2"/>
+                  <path d="M282.8,415 Q278.8,312.9 282.8,227.1" stroke-width="2.17" stroke-opacity="0.22"/>
+                  <path d="M325.8,415 Q322.4,317.5 325.8,212.7" stroke-width="1.97" stroke-opacity="0.18"/>
+                  <path d="M379.8,318.2 Q381.9,261.0 379.8,225.2" stroke-width="1.17" stroke-opacity="0.15"/>
+                  <path d="M386.0,415 Q386.5,308.9 386.0,205.7" stroke-width="1.09" stroke-opacity="0.27"/>
+                  <path d="M399.8,358.7 Q399.2,327.5 399.8,312.3" stroke-width="1.2" stroke-opacity="0.31"/>
+                  <path d="M409.1,415 Q406.8,318.7 409.1,228.3" stroke-width="2.08" stroke-opacity="0.25"/>
+                  <path d="M418.6,403.6 Q416.7,385.4 418.6,351.9" stroke-width="1.29" stroke-opacity="0.19"/>
+                  <path d="M428.6,286.7 Q426.5,253.5 428.6,214.6" stroke-width="1.36" stroke-opacity="0.22"/>
+                  <path d="M438.8,415 Q439.4,325.5 438.8,215.5" stroke-width="1.07" stroke-opacity="0.16"/>
+                  <path d="M448.5,415 Q446.0,318.2 448.5,208.0" stroke-width="2.21" stroke-opacity="0.17"/>
+                  <path d="M458.3,415 Q457.7,306.1 458.3,219.3" stroke-width="0.86" stroke-opacity="0.31"/>
+                  <path d="M467.0,366.6 Q469.6,342.3 467.0,312.5" stroke-width="1.24" stroke-opacity="0.16"/>
+                  <path d="M503.1,415 Q500.9,310.3 503.1,202.2" stroke-width="2.08" stroke-opacity="0.25"/>
+                  <path d="M509.1,415 Q506.7,308.7 509.1,229.4" stroke-width="1.2" stroke-opacity="0.21"/>
+                  <path d="M550.6,297.9 Q551.2,257.4 550.6,237.6" stroke-width="1.34" stroke-opacity="0.3"/>
+                  <path d="M565.2,415 Q566.7,320.4 565.2,221.0" stroke-width="1.01" stroke-opacity="0.14"/>
+                  <path d="M571.6,393.3 Q575.3,340.6 571.6,314.7" stroke-width="1.75" stroke-opacity="0.22"/>
+                </g>
+              </g>
+
+              <g clip-path="url(#clipT2)">
+                <rect x="510" y="275" width="235" height="150" fill="var(--butte-lit)"/>
+                <path fill="var(--butte-mid)" d="M505,270 L750,270 L750,327.7 L726.6,338.0 L683.6,336.2 L640.9,322.8 L592.8,329.9 L540.3,326.5 L505,322.4 Z"/>
+                <rect x="655" y="275" width="90" height="150" fill="var(--butte-shadow)"/>
+                <path stroke="var(--butte-cap)" stroke-width="3" stroke-opacity=".85" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M588,285 L600,296 L613,278 L631,289 L646,281 L660,291"/>
+                <g class="strata" stroke="#170A05" fill="none" stroke-linecap="round">
+                  <path d="M519,327 L718,334" stroke-width="2.7" stroke-opacity="0.25"/>
+                </g>
+                <g class="flute" stroke="#150803" fill="none" stroke-linecap="round">
+                  <path d="M526.5,415 Q522.9,365.0 526.5,293.6" stroke-width="1.61" stroke-opacity="0.2"/>
+                  <path d="M544.9,385.5 Q548.4,358.6 544.9,316.4" stroke-width="2.05" stroke-opacity="0.23"/>
+                  <path d="M553.7,415 Q557.4,344.1 553.7,283.7" stroke-width="1.84" stroke-opacity="0.29"/>
+                  <path d="M562.3,382.3 Q559.8,333.0 562.3,308.9" stroke-width="1.54" stroke-opacity="0.15"/>
+                  <path d="M572.0,415 Q571.3,356.7 572.0,289.4" stroke-width="2.0" stroke-opacity="0.2"/>
+                  <path d="M582.7,415 Q581.1,355.6 582.7,290.8" stroke-width="1.55" stroke-opacity="0.22"/>
+                  <path d="M591.4,415 Q595.4,343.4 591.4,279.9" stroke-width="1.42" stroke-opacity="0.21"/>
+                  <path d="M636.2,415 Q636.3,354.2 636.2,298.9" stroke-width="1.02" stroke-opacity="0.28"/>
+                  <path d="M645.8,346.1 Q644.4,313.4 645.8,288.6" stroke-width="1.13" stroke-opacity="0.16"/>
+                  <path d="M652.2,415 Q653.4,346.9 652.2,295.5" stroke-width="1.73" stroke-opacity="0.16"/>
+                  <path d="M691.0,415 Q694.4,354.5 691.0,296.2" stroke-width="1.92" stroke-opacity="0.22"/>
+                  <path d="M699.1,415 Q703.0,359.8 699.1,290.9" stroke-width="1.47" stroke-opacity="0.26"/>
+                  <path d="M707.7,415 Q710.3,358.2 707.7,295.3" stroke-width="2.03" stroke-opacity="0.15"/>
+                  <path d="M715.7,415 Q713.1,355.6 715.7,285.5" stroke-width="1.42" stroke-opacity="0.19"/>
+                  <path d="M721.8,415 Q718.7,342.5 721.8,285.8" stroke-width="1.21" stroke-opacity="0.28"/>
+                </g>
+              </g>
+            </g>
+
+            <!-- layer 3: second hero cluster, its own flared talus, smaller and
+                 further right, same broad-blocky proportion as the main cluster -->
+            <g class="butte-cluster">
+              <path fill="var(--talus-upper)" d="M970,427.4 L1024.6,433.1 L1075.9,430.9 L1131.4,430 L1184.4,429.6 L1247.1,423.1 L1260,423.1 L1290,452.6 L1263.7,452.3 L1205.5,458.9 L1149.5,461.1 L1086.1,463.5 L1038,454.2 L998,460.7 L940,457.6 Z"/>
+              <path fill="var(--talus-mid)" d="M940,457.6 L998,460.7 L1038,454.2 L1086.1,463.5 L1149.5,461.1 L1205.5,458.9 L1263.7,452.3 L1290,452.6 L1330,483.6 L1298.1,481.3 L1241.8,496.1 L1191.7,492.1 L1149.2,499.5 L1109.7,498.2 L1066.8,483.6 L1023.7,484.3 L959,493.3 L900,485.7 Z"/>
+              <path fill="var(--talus-lower)" d="M900,485.7 L959,493.3 L1023.7,484.3 L1066.8,483.6 L1109.7,498.2 L1149.2,499.5 L1191.7,492.1 L1241.8,496.1 L1298.1,481.3 L1330,483.6 L1360,520 L870,520 Z"/>
+
+              <g clip-path="url(#clipT3)">
+                <rect x="1010" y="322" width="220" height="106" fill="var(--butte-lit)"/>
+                <path fill="var(--butte-mid)" d="M1005,318 L1235,318 L1235,362.5 L1220.1,362.1 L1174.7,364.7 L1140.0,369.4 L1087.7,364.7 L1050.8,367.7 L1005,363.3 Z"/>
+                <rect x="1150" y="322" width="80" height="106" fill="var(--butte-shadow)"/>
+                <path stroke="var(--butte-cap)" stroke-width="3" stroke-opacity=".85" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M1054,336 L1063,347 L1080,326 L1093,338 L1108,330 L1122,341 L1144,332"/>
+                <g class="strata" stroke="#170A05" fill="none" stroke-linecap="round">
+                  <path d="M1005,368 L1211,371" stroke-width="2.5" stroke-opacity="0.26"/>
+                </g>
+                <g class="flute" stroke="#150803" fill="none" stroke-linecap="round">
+                  <path d="M1040.2,423 Q1041.3,381.2 1040.2,350.5" stroke-width="1.24" stroke-opacity="0.24"/>
+                  <path d="M1057.8,362.0 Q1057.2,343.8 1057.8,306.2" stroke-width="1.92" stroke-opacity="0.25"/>
+                  <path d="M1101.7,423 Q1098.1,389.4 1101.7,329.0" stroke-width="1.21" stroke-opacity="0.19"/>
+                  <path d="M1111.2,423 Q1109.8,368.9 1111.2,329.2" stroke-width="1.2" stroke-opacity="0.16"/>
+                  <path d="M1119.3,423 Q1116.8,368.7 1119.3,336.2" stroke-width="0.94" stroke-opacity="0.3"/>
+                  <path d="M1128.3,423 Q1125.5,365.5 1128.3,329.2" stroke-width="1.25" stroke-opacity="0.17"/>
+                  <path d="M1135.4,308.1 Q1135.1,280.9 1135.4,255.2" stroke-width="1.29" stroke-opacity="0.25"/>
+                  <path d="M1144.6,423 Q1144.4,372.0 1144.6,327.8" stroke-width="1.76" stroke-opacity="0.18"/>
+                  <path d="M1154.1,353.5 Q1152.6,341.6 1154.1,308.0" stroke-width="1.67" stroke-opacity="0.19"/>
+                  <path d="M1162.5,423 Q1158.8,370.9 1162.5,341.9" stroke-width="1.56" stroke-opacity="0.28"/>
+                  <path d="M1176.8,423 Q1176.9,373.3 1176.8,337.0" stroke-width="1.86" stroke-opacity="0.31"/>
+                  <path d="M1184.7,334.6 Q1183.3,294.5 1184.7,276.5" stroke-width="1.1" stroke-opacity="0.27"/>
+                  <path d="M1191.4,423 Q1192.4,385.5 1191.4,333.4" stroke-width="1.96" stroke-opacity="0.29"/>
+                </g>
+              </g>
+            </g>
+
+            <!-- small distant petite butte, its own tiny cluster, far right of frame —
+                 flat-topped, not a rounded dome -->
+            <g fill="var(--mesa-mid-fill)">
+              <path d="M1440,520 L1440,500 L1448,494 L1448,478 L1458,470 L1480,463 L1490,470 L1500,479 L1500,494 L1508,500 L1508,520 Z"/>
+            </g>
+
+            <!-- dark mid-ground plateau — a flat stacked layer, in front of the buttes'
+                 talus, behind the black ridge -->
+            <path class="mesa-mid" fill="var(--mesa-mid-fill)" d="M0,640 L0,600 L120,592 L260,605 L400,588 L560,602 L700,590 L780,585 L860,592 L980,580 L1120,598 L1260,586 L1400,602 L1520,590 L1600,598 L1600,640 Z"/>
+
+            <!-- black foreground ridge — flat, near-flat rolling silhouette (gentle
+                 rises, not a repeated sawtooth comb), zero interior detail, frontmost
+                 ground -->
+            <path class="ridge" fill="var(--ridge-fill)" d="M0,640 L0,604 Q40,596 78,602 Q130,610 165,592 Q210,572 260,586 Q320,602 375,594 Q430,584 470,598 Q540,616 600,600 Q660,582 715,592 Q790,606 850,588 Q910,570 965,586 Q1030,604 1090,596 Q1150,588 1195,600 Q1260,616 1320,600 Q1385,582 1440,594 Q1510,608 1560,596 Q1585,590 1600,594 L1600,640 Z"/>
+
+            <!-- saguaro, left edge, thick trunk + two rounded upraised arms of unequal
+                 size — built from overlapping rounded capsules (never negative x, so
+                 nothing clips against the svg's own viewBox edge) -->
+            <g class="saguaro" fill="var(--ridge-fill)">
+              <path d="M70,640 L70,250 Q70,220 91,220 Q112,220 112,250 L112,640 Z"/>
+              <path d="M26,420 L26,310 Q26,296 40,296 Q54,296 54,310 L54,420 Z"/>
+              <path d="M40,384 L70,384 Q78,384 78,398 Q78,412 70,412 L40,412 Z"/>
+              <path d="M128,356 L128,264 Q128,250 143,250 Q158,250 158,264 L158,356 Z"/>
+              <path d="M108,328 L146,328 Q154,328 154,341 Q154,354 146,354 L108,354 Z"/>
+            </g>
+
+            <!-- agave / scrub fan silhouettes, hand-scattered along the ridge, varied
+                 scale + rotation so the repeated symbol doesn't read as a stamped tile -->
+            <g class="scrub-fans" fill="var(--ridge-fill)">
+              <use href="#agave" transform="translate(130,584) scale(1.15) rotate(-4 15 15)"/>
+              <use href="#agave" transform="translate(310,596) scale(0.85) rotate(6 15 15)"/>
+              <use href="#agave" transform="translate(710,596) scale(1.1) rotate(-7 15 15)"/>
+              <use href="#agave" transform="translate(880,584) scale(0.8) rotate(10 15 15)"/>
+              <use href="#agave" transform="translate(1010,596) scale(0.9) rotate(7 15 15)"/>
+              <use href="#agave" transform="translate(1310,596) scale(1.15) rotate(-6 15 15)"/>
+              <use href="#agave" transform="translate(1370,600) scale(0.85) rotate(9 15 15)"/>
+              <use href="#agave" transform="translate(1530,592) scale(1.0) rotate(-3 15 15)"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,295 @@
+/* ===================================================================
+   ORNAMENT — the rope frame, the four star motifs, rules, the
+   outline/bevel utility for illustrated shapes, buttons and panels.
+   The rope is a once-per-composition frame device — never shrunk into
+   a card/button/input border. The ink outline utility is reserved for
+   actual illustration, not stamped on every piece of UI chrome.
+   =================================================================== */
+
+/* ---- illustration-only ink outline utility. Constant absolute
+   weight, rounded corners, never scaled with the shape (law 1). Not
+   for cards/inputs/buttons — see DECISIONS.md #4. ---- */
+.ink-outline {
+  outline: var(--outline-weight) solid var(--ink-outline);
+  outline-offset: 0;
+}
+
+/* ===================================================================
+   The four star motifs — differ in silhouette, not just size. Base
+   class supplies positioning/display; modifiers supply the shape.
+   =================================================================== */
+.star { position: relative; display: inline-block; flex: none; }
+
+/* 1. Rope-corner sparkle — 4-point, concave-waisted, no center dot,
+   flat-bevel shaded, corners of the rope frame only. */
+.star--sparkle {
+  background: linear-gradient(135deg,
+    var(--bronze-highlight) 0%, var(--bronze-light) 38%,
+    var(--bronze-mid) 66%, var(--bronze-groove) 100%);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+}
+
+/* 2. Ambient sky twinkle — thin 4-point needle, no center dot,
+   scattered small in the night sky only. */
+.star--twinkle {
+  background: var(--ivory-flat);
+  clip-path: polygon(50% 0%, 55% 46%, 100% 50%, 55% 54%, 50% 100%, 45% 54%, 0% 50%, 45% 46%);
+}
+
+/* 3. Rule bullet star — plain convex 5-point, flat single tone,
+   breaks a rule at its midpoint. */
+.star--bullet {
+  width: 14px; height: 14px;
+  background: var(--bronze-flat);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 69% 57%, 79% 91%, 50% 71%, 21% 91%, 31% 57%, 2% 35%, 39% 35%);
+}
+
+/* 4. Compass star — convex 8-point with a small round center dot, the
+   most ornate; flanks the wordmark and marks a rule's midpoint. */
+.star--compass {
+  width: 22px; height: 22px;
+  background: var(--bronze-flat);
+  clip-path: polygon(
+    50% 0%, 61% 28%, 87% 13%, 72% 39%, 100% 50%, 72% 61%, 87% 87%, 61% 72%,
+    50% 100%, 39% 72%, 13% 87%, 28% 61%, 0% 50%, 28% 39%, 13% 13%, 39% 28%
+  );
+}
+.star--compass::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 24%; height: 24%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--bronze-highlight);
+}
+
+/* ===================================================================
+   The rope frame — a literal, once-per-composition border: a twisted
+   tube inset from the canvas edge by a plain navy margin, individual
+   wraps legible (not a smooth gradient tube), corners bent tight with
+   a 4-point sparkle capping each turn. Runs the perimeter of one
+   composition; never reused as a border-image on a button or card.
+   =================================================================== */
+.rope-frame {
+  position: relative;
+  padding: calc(var(--rope-margin) + var(--rope-thickness) + 6px);
+}
+
+.rope-frame::before {
+  content: "";
+  position: absolute;
+  inset: var(--rope-margin);
+  border-radius: var(--rope-corner-radius);
+  padding: var(--rope-thickness);
+  background:
+    repeating-linear-gradient(128deg,
+      var(--bronze-highlight) 0 3px,
+      var(--bronze-light) 3px 7px,
+      var(--bronze-mid) 7px 11px,
+      var(--bronze-groove) 11px 15px
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* thin self-outline tracing the rope's own silhouette (no separate
+   inset keyline exists in the source — see SHAPE.md §2) */
+.rope-frame::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--rope-margin) - 1.5px);
+  border-radius: var(--rope-corner-radius);
+  border: 1.5px solid var(--ink-outline);
+  pointer-events: none;
+}
+
+.rope-frame .star--sparkle.corner {
+  position: absolute;
+  width: var(--corner-star-size);
+  height: var(--corner-star-size);
+  z-index: 2;
+}
+.rope-frame .corner.tl { top: calc(var(--rope-margin) - var(--corner-star-size) * .5); left: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+.rope-frame .corner.tr { top: calc(var(--rope-margin) - var(--corner-star-size) * .5); right: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+.rope-frame .corner.bl { bottom: calc(var(--rope-margin) - var(--corner-star-size) * .5); left: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+.rope-frame .corner.br { bottom: calc(var(--rope-margin) - var(--corner-star-size) * .5); right: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+
+/* ===================================================================
+   Rules — hairline bronze dividers with an inline bullet star.
+   =================================================================== */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: .7em;
+  color: var(--bronze-flat);
+}
+.rule::before, .rule::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--bronze-flat);
+}
+
+/* ===================================================================
+   Buttons & panels — the two hero controls in the masthead (primary CTA,
+   code chip) are treated as small illustrated signage, built the same
+   way as every other shape in the system: a chamfered (hand-cut, never
+   rounded-rect) silhouette, a constant-weight ink stroke that is a real
+   second layer (not a CSS `border`, so it survives the diagonal cuts),
+   a flat hard-stop cel fill (never a smooth gradient), and a HARD,
+   zero-blur offset shadow via `filter: drop-shadow(…0…)` — the same
+   crisp stacked-plank offset SHAPE.md documents under the wordmark
+   letterforms — never a soft `box-shadow`. Elsewhere (cards, inputs,
+   nav) chrome stays outline-free per DECISIONS.md #4; these two do not
+   count as "every button" — they are the one signed CTA and the one
+   terminal chip on the page, not a generic input/panel.
+   =================================================================== */
+#masthead { padding: 56px 0; }
+
+.masthead-content {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1.7rem 0;
+}
+
+/* shared chamfer geometry: outer box IS the ink stroke; ::before is the
+   inset fill layer, shrunk by exactly one stroke width on every edge
+   (including the diagonals) so the stroke reads as constant weight all
+   the way round, not just on the four straight sides a CSS `border`
+   would cover. */
+.btn {
+  --chamfer: 11px;
+  --edge: var(--outline-weight);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .98rem;
+  padding: .82em 1.5em;
+  color: var(--ivory-flat);
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: var(--ink-outline);
+  clip-path: polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer), 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer)
+  );
+  filter: drop-shadow(3px 4px 0 var(--ink-outline));
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: var(--edge);
+  background: transparent;
+  clip-path: polygon(
+    calc(var(--chamfer) - var(--edge)) 0, calc(100% - (var(--chamfer) - var(--edge))) 0,
+    100% calc(var(--chamfer) - var(--edge)), 100% calc(100% - (var(--chamfer) - var(--edge))),
+    calc(100% - (var(--chamfer) - var(--edge))) 100%, calc(var(--chamfer) - var(--edge)) 100%,
+    0 calc(100% - (var(--chamfer) - var(--edge))), 0 calc(var(--chamfer) - var(--edge))
+  );
+}
+
+/* Flat hard-stop cel fill — the same convention as the mascot's small
+   parts (connector square: mid-tone base disc + one small offset
+   lighter ellipse, no gradient) plus a darker shadow band at the
+   underside rim. The highlight is a small fixed patch in the upper
+   left, matching SHAPE.md's "every specular sits upper-left" rule —
+   NOT a full-width diagonal band, which would read as a UI hover
+   sweep rather than a drawn object's specular. */
+.btn.primary::before {
+  background:
+    radial-gradient(ellipse 16% 24% at 21% 26%,
+      var(--bronze-highlight) 55%, transparent 72%),
+    /* Main band lifted from --bronze-mid to --bronze-light: the label
+       (#201308) measured 4.35:1 on bronze-mid, under WCAG AA, on the
+       page's single most important control. On bronze-light it is
+       7.58:1. The lower shading band keeps the two-tone cel build but
+       is pulled to 12% so the label never sits on it. */
+    linear-gradient(var(--bronze-light) 0% 88%, var(--bronze-mid) 88% 100%);
+}
+.btn.primary { color: #201308; }
+.btn.primary::after {
+  content: "\203A";
+  color: var(--cyan-shadow);
+  font-weight: 900;
+  margin-left: .15em;
+}
+.btn.primary:hover { filter: drop-shadow(3px 4px 0 var(--ink-outline)) brightness(1.06); }
+.btn.primary:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 2px;
+}
+
+.copyline {
+  --chamfer: 9px;
+  --edge: var(--outline-weight);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .65em;
+  color: var(--ivory-flat);
+  padding: .72em 1.1em;
+  cursor: pointer;
+  font-size: .92rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: var(--ink-outline);
+  clip-path: polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer), 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer)
+  );
+  filter: drop-shadow(2px 3px 0 var(--ink-outline));
+}
+.copyline::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: var(--edge);
+  background: color-mix(in srgb, var(--sky-night) 84%, white 6%);
+  clip-path: polygon(
+    calc(var(--chamfer) - var(--edge)) 0, calc(100% - (var(--chamfer) - var(--edge))) 0,
+    100% calc(var(--chamfer) - var(--edge)), 100% calc(100% - (var(--chamfer) - var(--edge))),
+    calc(100% - (var(--chamfer) - var(--edge))) 100%, calc(var(--chamfer) - var(--edge)) 100%,
+    0 calc(100% - (var(--chamfer) - var(--edge))), 0 calc(var(--chamfer) - var(--edge))
+  );
+}
+.copyline .p { color: var(--bronze-light); font-weight: 700; }
+.copyline .ico {
+  margin-left: .4em;
+  font-size: .72em;
+  color: var(--bronze-light);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.copyline.is-done .ico { color: var(--cyan-light); }
+.copyline.is-done { background: var(--cyan-shadow); }
+
+/* The .panel surface now lives in the layout contract
+   (src/pieces/layout/style.css). The bordered, 12px-radius card that
+   used to be defined here described a different visual language than
+   the one that wins the cascade, and leaving both in place is how a
+   page ends up with two panel treatments. Removed deliberately. */

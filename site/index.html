@@ -1,0 +1,2607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shotgun — make one API answer to another API's shape</title>
+<meta name="description" content="Shotgun reads two OpenAPI specs, matches what already lines up, and runs a proxy that translates the rest.">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Shotgun">
+<meta property="og:description" content="Two specs in. One proxy out.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bryanhu.com/shotgun/">
+<meta property="og:image" content="https://bryanhu.com/shotgun/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shotgun — one API shape in, another out">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://bryanhu.com/shotgun/assets/og.png">
+<link rel="canonical" href="https://bryanhu.com/shotgun/">
+<meta name="theme-color" content="#020D19">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
+<script>document.documentElement.classList.add('js')</script>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Bitter:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ===== substrate ===== */
+/* ===================================================================
+   SUBSTRATE — the night ground.
+   Tokens (root), page reset, the stepped sky→ember gradient, the
+   halftone patch, ambient sky twinkle placement, the mesa horizon
+   (mesas + hero buttes + foreground ridge + cacti, all CSS-drawn,
+   hand-placed — never a repeating tile), and the one global grain pass.
+   =================================================================== */
+
+:root {
+  /* ---- sky / ground (stepped, not smooth — flat for ~55% then a
+     narrow choked-off ember band right at the horizon) ---- */
+  --sky-night: #020D19;
+  --sky-warm-1: #08131E;
+  --sky-transition: #1A191F;
+  --sky-ramp: #392424;
+  --sky-ember-peak: #A2340D;
+  --mesa-mid-fill: #1B1210;   /* dark mid-ground plateau, between the talus
+                                 and the black foreground ridge */
+  --mesa-bg-fill: #2A1B14;
+  --ground-floor: #070F17;
+  --ridge-fill: #05070B;
+  --butte-lit: #4A2415;      /* sampled off assets/banner.png buttes — a
+                                 muted, DARK terracotta, NOT a bright orange —
+                                 the reference reads far closer to silhouette
+                                 than to a lit daytime rock face */
+  --butte-mid: #593018;      /* second flat tone — sunlit upper shelf, just
+                                 below the cap rim; a subtle lift over --butte-
+                                 lit, not a bright band, and bounded by an
+                                 irregular hand-drawn edge, never a ruled line */
+  --butte-shadow: #23100A;   /* receding face, flat, no gradient, near-black */
+  --butte-window: #170B05;   /* small carved-recess accents on the rock face
+                                 — a flat tone darker than shadow, never a
+                                 gradient or a blur */
+  --butte-cap: #8C5A34;      /* thin lit rim sliver along each flat top */
+  --talus-upper: #3B2015;    /* flared skirt, band nearest the rock — hand-
+                                 terraced irregular tones, never a stepped
+                                 staircase silhouette */
+  --talus-mid: #2B1C18;
+  --talus-lower: #1B120D;    /* darkest band, blends toward the ground floor */
+
+  /* ---- universal ink outline (illustrated shapes only, law 1) ---- */
+  --ink-outline: #000F30;
+
+  /* ---- mascot material families, reserved for illustration pieces ---- */
+  --wood-highlight: #FEA050;
+  --wood-main: #D54609;
+  --wood-shadow: #B83603;
+  --wood-deep: #912400;
+  --steel-specular: #F9F9FD;
+  --steel-light: #D0D2DD;
+  --steel-base: #B3B8CC;
+  --steel-mid: #6C7793;
+  --steel-shadow: #53607E;
+  --amber-highlight: #FFA211;
+  --amber-main: #FEA410;
+  --amber-shadow: #B84F01;
+  --red-highlight: #F02F1F;
+  --red-main: #EE281B;
+  --red-mid: #D01B14;
+  --red-shadow: #BF120F;
+  --red-deep: #330000;
+
+  /* ---- cyan: the one saturated cool color, used once per view ---- */
+  --cyan-specular: #FFFFFF;
+  --cyan-light: #35E5F4;
+  --cyan-shadow: #00CFDE;
+  --cyan-bloom: #0BC5D5;
+
+  /* ---- wordmark ivory family ---- */
+  --ivory-top: #F3DEBF;
+  --ivory-bottom: #EED2AA;
+  --ivory-bright: #FBF2D7;
+  --ivory-flat: #F2DDBC;
+  --ivory-bevel: #856244;
+
+  /* ---- bronze / rope ornament family ---- */
+  --bronze-highlight: #FDCC97;
+  --bronze-light: #CAA070;
+  --bronze-mid: #9F734D;
+  --bronze-groove: #7F5E41;
+  --bronze-deep: #332721;
+  --bronze-flat: #9E6F4C;
+
+  /* ---- geometry ---- */
+  --outline-weight: 2px;             /* constant absolute weight, law 1 */
+  --rope-thickness: 13px;            /* ~1.47% of a banner-scale frame */
+  --rope-margin: 20px;                /* plain navy gap, rope to canvas edge */
+  --rope-corner-radius: 30px;         /* ~2x rope diameter */
+  --corner-star-size: calc(var(--rope-thickness) * 4.3);
+  --halftone-dot: 3px;
+  --halftone-pitch: 16px;
+  --grain-opacity: 0.035;
+  --wordmark-tilt: -3.6deg;
+
+  /* ---- fonts (declared here, loaded by the type piece) ---- */
+  --font-display: 'Alfa Slab One', serif;
+  --font-body: 'Bitter', serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+}
+
+/* ---- minimal reset / foundation ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--sky-night);
+  color: var(--ivory-flat);
+}
+
+body {
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ---- global, once, near-invisible grain — law 9. A single flat
+   monochrome noise pass over the WHOLE page, not just the hero, and
+   not cranked up "for texture." Blend mode is `normal`, not `overlay`:
+   overlay is multiplicative near black (result ≈ 2·base·blend), so on
+   the near-black night sky it was compositing away to nothing and the
+   sky read as a perfectly smooth gradient. Normal alpha blending at
+   this opacity adds the same small, order-of-magnitude jitter (~1-5 of
+   255) regardless of how dark or light the pixel underneath is, which
+   is what the source composition actually measures — sky, rope and
+   silhouette all show the same amount of grain. ---- */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: normal;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-repeat: repeat;
+}
+
+/* ===================================================================
+   Hero ground — the stepped night→ember gradient. Flat for the first
+   half, a slow grey-brown warm-up, then a hard late ramp choked off
+   before it ever reads as a "sunset wash." No radial corner vignette
+   (the flat navy already reads as night) — the only vignette-like move
+   is the gradient's own dark floor at the bottom.
+   =================================================================== */
+.hero-ground {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--rope-corner-radius);
+  background: linear-gradient(
+    to bottom,
+    #010D19 0%,
+    #030F1B 58%,
+    #0A1520 72%,
+    #1E1B1E 81%,
+    #3D2620 87%,
+    #A2340D 90.5%,
+    #2B1C18 92.5%,
+    #070F17 100%
+  );
+  /* The hero used to reserve room for the horizon with
+     `padding-bottom: calc(... + 34%)`. Percentage padding resolves
+     against the containing block's WIDTH, not its height, so the
+     reservation shrank as the viewport narrowed — exactly when the
+     headline wrapped taller and needed more. Combined with
+     align-items:center that pushed the copy down behind the buttes:
+     measured 274px of overlap at 320px wide, with "Rust + axum"
+     completely hidden behind opaque rock from 500px down.
+
+     The horizon is now a flow item at the end of a column, so the
+     copy physically cannot sit on top of it at any width. */
+  --hero-pad-x: clamp(28px, 6vw, 64px);
+  --hero-pad-y: clamp(36px, 4.5vw, 60px);
+  padding: var(--hero-pad-y) var(--hero-pad-x) 0;
+  /* The hero was 1097px tall, so on a laptop the horizon and the
+     frame's bottom corners fell below the fold and the composition —
+     which is the frame plus the horizon — could never be seen whole.
+     Sized to the viewport instead, with a floor so it stays a hero on
+     short windows. */
+  min-height: min(560px, 68svh);
+  /* Deliberately NO max-height. The ground needs overflow:hidden for
+     its corner radius, so any cap risks slicing real copy — it clipped
+     the hero content at 1280x720. The horizon shrinks instead, and on
+     a short window the hero simply runs a little past the fold rather
+     than cutting text off. */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- halftone patch: a small, deliberately modest dot grid tucked
+   under the top rope border — not a texture that tiles the sky. ---- */
+.halftone-patch {
+  position: absolute;
+  left: 5.6%;
+  top: 8%;
+  width: 5.6%;
+  height: 9%;
+  background-image: radial-gradient(rgba(255, 255, 255, .3) 1.2px, transparent 1.6px);
+  background-size: var(--halftone-pitch) var(--halftone-pitch);
+  pointer-events: none;
+}
+
+/* ---- ambient sky twinkle: a handful of hand-placed instances of the
+   .star--twinkle motif (shape owned by ornament), never a repeated
+   tile — a real night sky doesn't repeat either. ---- */
+.sky-stars { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.sky-stars .star--twinkle { position: absolute; }
+.sky-stars i:nth-child(1) { top: 10%;  left: 58%; width: 22px; height: 22px; opacity: .55; transform: rotate(6deg); }
+.sky-stars i:nth-child(2) { top: 16%;  left: 9%;  width: 14px; height: 14px; opacity: .4;  transform: rotate(-14deg); }
+.sky-stars i:nth-child(3) { top: 30%;  left: 71%; width: 30px; height: 30px; opacity: .9;  transform: rotate(11deg); }
+.sky-stars i:nth-child(4) { top: 46%;  left: 26%; width: 12px; height: 12px; opacity: .35; transform: rotate(-4deg); }
+.sky-stars i:nth-child(5) { top: 8%;   left: 34%; width: 10px; height: 10px; opacity: .3;  transform: rotate(19deg); }
+.sky-stars i:nth-child(6) { top: 54%;  left: 63%; width: 16px; height: 16px; opacity: .45; transform: rotate(-9deg); }
+.sky-stars i:nth-child(7) { top: 22%;  left: 48%; width: 9px;  height: 9px;  opacity: .3;  transform: rotate(3deg); }
+.sky-stars i:nth-child(8) { top: 60%;  left: 12%; width: 11px; height: 11px; opacity: .3;  transform: rotate(-21deg); }
+.sky-stars i:nth-child(9) { top: 38%;  left: 90%; width: 13px; height: 13px; opacity: .4;  transform: rotate(15deg); }
+
+/* ===================================================================
+   Mesa horizon — one continuous, hand-composed SVG scene with four
+   stacked depth layers (back to front): distant background mesas,
+   the main hero buttes (broad, blocky Monument-Valley formations —
+   flat cel tones, vertical fluting, horizontal strata, stepped
+   talus), a dark mid-ground plateau, and a flat-black foreground
+   ridge carrying a saguaro + agave silhouettes. Drawn once, hand-
+   placed, never a repeating background-repeat tile. The landscape
+   itself carries NO ink outline (law-1's outline is reserved for the
+   mascot/ornaments) — every edge here is a butted flat-fill silhouette. -*/
+.mesa-horizon {
+  /* In flow as the last child of .hero-ground, bled back out to the
+     frame edge past the hero's horizontal padding. Its own aspect
+     ratio sets its height, so it never has to be a percentage of a
+     box whose height depends on how the headline wrapped. */
+  position: relative;
+  flex: 0 0 auto;
+  margin-inline: calc(var(--hero-pad-x) * -1);
+  /* Height comes from the viewport, not a fixed ratio, so the horizon
+     compresses on short windows instead of pushing the hero past the
+     fold. The SVG uses preserveAspectRatio="slice", so it crops from
+     the top rather than squashing. */
+  /* A direct trade: a taller band shows more of the buttes but pushes
+     the framed hero back below the fold, which is the thing that read
+     as "clipped" in the first place. Fitting wins. */
+  height: clamp(130px, 16svh, 240px);
+  flex: 0 1 auto;
+  min-height: 118px;
+  z-index: 1;
+  pointer-events: none;
+}
+.mesa-horizon .horizon-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== type ===== */
+/* ===================================================================
+   TYPE — the scale. Alfa Slab One (compressed) for display/headings,
+   Bitter for body and the tagline, a system mono stack for code. The
+   wordmark itself is never set in type — it is the logotype asset;
+   this file only styles its placement and the level tagline beside it.
+   =================================================================== */
+
+body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--ivory-flat);
+  line-height: 1.05;
+  margin: 0 0 .45em;
+  /* Alfa Slab One horizontally compressed to match the reference's
+     condensed proportion — letter-spacing opened slightly to
+     compensate, per DECISIONS.md #2. Never applied to body copy. */
+  transform: scaleX(.78);
+  transform-origin: left center;
+  letter-spacing: .015em;
+}
+
+h1 { font-size: clamp(2.1rem, 3.9vw, 3.15rem); }
+h2 { font-size: clamp(1.6rem, 3vw, 2.35rem); }
+h3 { font-size: 1.2rem; margin-bottom: .3em; }
+
+p {
+  color: var(--ivory-flat);
+  opacity: .88;
+}
+
+/* ---- eyebrow: small mono label above a headline ---- */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  margin-bottom: 1.1em;
+}
+.eyebrow b { color: var(--ivory-flat); font-weight: 700; }
+
+/* ---- the tagline treatment: flat ivory, Bitter bold, level — never
+   inherits a rotation, per DECISIONS.md / BRIEF.md law 7. ---- */
+.sub, .tagline {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--ivory-flat);
+  font-size: 1.15rem;
+  line-height: 1.5;
+  max-width: 46ch;
+  opacity: 1;
+  margin: 0;
+}
+
+/* ---- the wordmark: an ASSET, not a font. Sits only on flat night
+   sky. Already carries its own tilt baked into the artwork — do not
+   rotate it again here. ---- */
+.wordmark-lockup {
+  width: min(320px, 54%);
+  height: auto;
+  margin: 0 0 1rem;
+  /* The asset is cut out on transparency, so it composites onto any ground
+     with no seam. Its cast shadow was cut away with the background — the
+     artwork's shadow is a hard offset with zero blur, so drop-shadow()
+     reproduces it exactly rather than approximating it. */
+  filter: drop-shadow(3px 3px 0 var(--sky-night));
+}
+
+/* ---- small print row under the hero ---- */
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5em 1.5em;
+  margin-top: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: .8rem;
+  letter-spacing: .02em;
+  color: var(--bronze-light);
+}
+
+/* ---- code / mono ---- */
+code, pre, .copyline, .code-bar .name {
+  font-family: var(--font-mono);
+}
+pre {
+  margin: 0;
+  font-size: .88rem;
+  line-height: 1.6;
+  color: var(--ivory-flat);
+  overflow-x: auto;
+}
+code {
+  background: color-mix(in srgb, var(--sky-night) 84%, white 6%);
+  padding: .15em .42em;
+  border-radius: 5px;
+  font-size: .88em;
+}
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ===== ornament ===== */
+/* ===================================================================
+   ORNAMENT — the rope frame, the four star motifs, rules, the
+   outline/bevel utility for illustrated shapes, buttons and panels.
+   The rope is a once-per-composition frame device — never shrunk into
+   a card/button/input border. The ink outline utility is reserved for
+   actual illustration, not stamped on every piece of UI chrome.
+   =================================================================== */
+
+/* ---- illustration-only ink outline utility. Constant absolute
+   weight, rounded corners, never scaled with the shape (law 1). Not
+   for cards/inputs/buttons — see DECISIONS.md #4. ---- */
+.ink-outline {
+  outline: var(--outline-weight) solid var(--ink-outline);
+  outline-offset: 0;
+}
+
+/* ===================================================================
+   The four star motifs — differ in silhouette, not just size. Base
+   class supplies positioning/display; modifiers supply the shape.
+   =================================================================== */
+.star { position: relative; display: inline-block; flex: none; }
+
+/* 1. Rope-corner sparkle — 4-point, concave-waisted, no center dot,
+   flat-bevel shaded, corners of the rope frame only. */
+.star--sparkle {
+  background: linear-gradient(135deg,
+    var(--bronze-highlight) 0%, var(--bronze-light) 38%,
+    var(--bronze-mid) 66%, var(--bronze-groove) 100%);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+}
+
+/* 2. Ambient sky twinkle — thin 4-point needle, no center dot,
+   scattered small in the night sky only. */
+.star--twinkle {
+  background: var(--ivory-flat);
+  clip-path: polygon(50% 0%, 55% 46%, 100% 50%, 55% 54%, 50% 100%, 45% 54%, 0% 50%, 45% 46%);
+}
+
+/* 3. Rule bullet star — plain convex 5-point, flat single tone,
+   breaks a rule at its midpoint. */
+.star--bullet {
+  width: 14px; height: 14px;
+  background: var(--bronze-flat);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 69% 57%, 79% 91%, 50% 71%, 21% 91%, 31% 57%, 2% 35%, 39% 35%);
+}
+
+/* 4. Compass star — convex 8-point with a small round center dot, the
+   most ornate; flanks the wordmark and marks a rule's midpoint. */
+.star--compass {
+  width: 22px; height: 22px;
+  background: var(--bronze-flat);
+  clip-path: polygon(
+    50% 0%, 61% 28%, 87% 13%, 72% 39%, 100% 50%, 72% 61%, 87% 87%, 61% 72%,
+    50% 100%, 39% 72%, 13% 87%, 28% 61%, 0% 50%, 28% 39%, 13% 13%, 39% 28%
+  );
+}
+.star--compass::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 24%; height: 24%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--bronze-highlight);
+}
+
+/* ===================================================================
+   The rope frame — a literal, once-per-composition border: a twisted
+   tube inset from the canvas edge by a plain navy margin, individual
+   wraps legible (not a smooth gradient tube), corners bent tight with
+   a 4-point sparkle capping each turn. Runs the perimeter of one
+   composition; never reused as a border-image on a button or card.
+   =================================================================== */
+.rope-frame {
+  position: relative;
+  padding: calc(var(--rope-margin) + var(--rope-thickness) + 6px);
+}
+
+.rope-frame::before {
+  content: "";
+  position: absolute;
+  inset: var(--rope-margin);
+  border-radius: var(--rope-corner-radius);
+  padding: var(--rope-thickness);
+  background:
+    repeating-linear-gradient(128deg,
+      var(--bronze-highlight) 0 3px,
+      var(--bronze-light) 3px 7px,
+      var(--bronze-mid) 7px 11px,
+      var(--bronze-groove) 11px 15px
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* thin self-outline tracing the rope's own silhouette (no separate
+   inset keyline exists in the source — see SHAPE.md §2) */
+.rope-frame::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--rope-margin) - 1.5px);
+  border-radius: var(--rope-corner-radius);
+  border: 1.5px solid var(--ink-outline);
+  pointer-events: none;
+}
+
+.rope-frame .star--sparkle.corner {
+  position: absolute;
+  width: var(--corner-star-size);
+  height: var(--corner-star-size);
+  z-index: 2;
+}
+.rope-frame .corner.tl { top: calc(var(--rope-margin) - var(--corner-star-size) * .5); left: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+.rope-frame .corner.tr { top: calc(var(--rope-margin) - var(--corner-star-size) * .5); right: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+.rope-frame .corner.bl { bottom: calc(var(--rope-margin) - var(--corner-star-size) * .5); left: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+.rope-frame .corner.br { bottom: calc(var(--rope-margin) - var(--corner-star-size) * .5); right: calc(var(--rope-margin) - var(--corner-star-size) * .5); }
+
+/* ===================================================================
+   Rules — hairline bronze dividers with an inline bullet star.
+   =================================================================== */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: .7em;
+  color: var(--bronze-flat);
+}
+.rule::before, .rule::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--bronze-flat);
+}
+
+/* ===================================================================
+   Buttons & panels — the two hero controls in the masthead (primary CTA,
+   code chip) are treated as small illustrated signage, built the same
+   way as every other shape in the system: a chamfered (hand-cut, never
+   rounded-rect) silhouette, a constant-weight ink stroke that is a real
+   second layer (not a CSS `border`, so it survives the diagonal cuts),
+   a flat hard-stop cel fill (never a smooth gradient), and a HARD,
+   zero-blur offset shadow via `filter: drop-shadow(…0…)` — the same
+   crisp stacked-plank offset SHAPE.md documents under the wordmark
+   letterforms — never a soft `box-shadow`. Elsewhere (cards, inputs,
+   nav) chrome stays outline-free per DECISIONS.md #4; these two do not
+   count as "every button" — they are the one signed CTA and the one
+   terminal chip on the page, not a generic input/panel.
+   =================================================================== */
+#masthead { padding: 56px 0; }
+
+.masthead-content {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1.7rem 0;
+}
+
+/* shared chamfer geometry: outer box IS the ink stroke; ::before is the
+   inset fill layer, shrunk by exactly one stroke width on every edge
+   (including the diagonals) so the stroke reads as constant weight all
+   the way round, not just on the four straight sides a CSS `border`
+   would cover. */
+.btn {
+  --chamfer: 11px;
+  --edge: var(--outline-weight);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .98rem;
+  padding: .82em 1.5em;
+  color: var(--ivory-flat);
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: var(--ink-outline);
+  clip-path: polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer), 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer)
+  );
+  filter: drop-shadow(3px 4px 0 var(--ink-outline));
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: var(--edge);
+  background: transparent;
+  clip-path: polygon(
+    calc(var(--chamfer) - var(--edge)) 0, calc(100% - (var(--chamfer) - var(--edge))) 0,
+    100% calc(var(--chamfer) - var(--edge)), 100% calc(100% - (var(--chamfer) - var(--edge))),
+    calc(100% - (var(--chamfer) - var(--edge))) 100%, calc(var(--chamfer) - var(--edge)) 100%,
+    0 calc(100% - (var(--chamfer) - var(--edge))), 0 calc(var(--chamfer) - var(--edge))
+  );
+}
+
+/* Flat hard-stop cel fill — the same convention as the mascot's small
+   parts (connector square: mid-tone base disc + one small offset
+   lighter ellipse, no gradient) plus a darker shadow band at the
+   underside rim. The highlight is a small fixed patch in the upper
+   left, matching SHAPE.md's "every specular sits upper-left" rule —
+   NOT a full-width diagonal band, which would read as a UI hover
+   sweep rather than a drawn object's specular. */
+.btn.primary::before {
+  background:
+    radial-gradient(ellipse 16% 24% at 21% 26%,
+      var(--bronze-highlight) 55%, transparent 72%),
+    /* Main band lifted from --bronze-mid to --bronze-light: the label
+       (#201308) measured 4.35:1 on bronze-mid, under WCAG AA, on the
+       page's single most important control. On bronze-light it is
+       7.58:1. The lower shading band keeps the two-tone cel build but
+       is pulled to 12% so the label never sits on it. */
+    linear-gradient(var(--bronze-light) 0% 88%, var(--bronze-mid) 88% 100%);
+}
+.btn.primary { color: #201308; }
+.btn.primary::after {
+  content: "\203A";
+  color: var(--cyan-shadow);
+  font-weight: 900;
+  margin-left: .15em;
+}
+.btn.primary:hover { filter: drop-shadow(3px 4px 0 var(--ink-outline)) brightness(1.06); }
+.btn.primary:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 2px;
+}
+
+.copyline {
+  --chamfer: 9px;
+  --edge: var(--outline-weight);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .65em;
+  color: var(--ivory-flat);
+  padding: .72em 1.1em;
+  cursor: pointer;
+  font-size: .92rem;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: var(--ink-outline);
+  clip-path: polygon(
+    var(--chamfer) 0, calc(100% - var(--chamfer)) 0,
+    100% var(--chamfer), 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%,
+    0 calc(100% - var(--chamfer)), 0 var(--chamfer)
+  );
+  filter: drop-shadow(2px 3px 0 var(--ink-outline));
+}
+.copyline::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: var(--edge);
+  background: color-mix(in srgb, var(--sky-night) 84%, white 6%);
+  clip-path: polygon(
+    calc(var(--chamfer) - var(--edge)) 0, calc(100% - (var(--chamfer) - var(--edge))) 0,
+    100% calc(var(--chamfer) - var(--edge)), 100% calc(100% - (var(--chamfer) - var(--edge))),
+    calc(100% - (var(--chamfer) - var(--edge))) 100%, calc(var(--chamfer) - var(--edge)) 100%,
+    0 calc(100% - (var(--chamfer) - var(--edge))), 0 calc(var(--chamfer) - var(--edge))
+  );
+}
+.copyline .p { color: var(--bronze-light); font-weight: 700; }
+.copyline .ico {
+  margin-left: .4em;
+  font-size: .72em;
+  color: var(--bronze-light);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+.copyline.is-done .ico { color: var(--cyan-light); }
+.copyline.is-done { background: var(--cyan-shadow); }
+
+/* The .panel surface now lives in the layout contract
+   (src/pieces/layout/style.css). The bordered, 12px-radius card that
+   used to be defined here described a different visual language than
+   the one that wins the cascade, and leaving both in place is how a
+   page ends up with two panel treatments. Removed deliberately. */
+
+/* ===== layout ===== */
+/* ===================================================================
+   LAYOUT CONTRACT
+
+   Six section builders worked in parallel with the design laws but no
+   shared layout rules, so each invented its own container width and
+   heading measure — 880px here, 720px there, headings measured at
+   16ch, 28ch and 42ch. The page ended up with four different left
+   edges and headings that wrapped on different word counts.
+
+   This file is the contract. It loads after the foundation and before
+   any section, and section CSS must not override the properties it
+   sets. One container, one rhythm, one measure.
+   =================================================================== */
+
+:root {
+  /* the single content column, shared by every section including the
+     masthead — this is what fixes the ragged left edge */
+  --shell-max: 1160px;
+  --shell-gutter: 28px;
+
+  /* vertical rhythm. Sections were running 400-500px of dead night sky
+     between them, which reads as unfinished rather than as generous. */
+  --section-pad-y: clamp(4.5rem, 8vw, 7rem);
+
+  /* measures. Display headings are set in a compressed slab at large
+     sizes, so they need a WIDER character measure than body copy or
+     they wrap every three words. */
+  --measure-display: 24ch;
+  --measure-lead: 62ch;
+  --measure-body: 68ch;
+}
+
+.wrap,
+.shell {
+  width: 100%;
+  max-width: var(--shell-max);
+  margin-inline: auto;
+  padding-inline: var(--shell-gutter);
+}
+
+/* Every top-level section gets the same rhythm. Sections may add to
+   this with their own margin, but must not set their own padding-block
+   or the page loses its beat. */
+main > section,
+main > .section {
+  padding-block: var(--section-pad-y);
+}
+
+/* The section intro: kicker, heading, lead. Consistent everywhere. */
+.sec-head { max-width: var(--measure-lead); }
+.sec-head > h2 { max-width: var(--measure-display); }
+.sec-head > p { max-width: var(--measure-lead); }
+
+/* Headings must not be measured tighter than the contract anywhere. */
+main h2 { max-width: var(--measure-display); }
+main p  { max-width: var(--measure-body); }
+
+/* ---- shared panel treatment -------------------------------------
+   The drafts each grew their own card: a rounded rectangle with a
+   hairline border and a slightly lighter fill. Six of those in a grid
+   is the generic SaaS feature grid the brief warns about, and a
+   uniform border-radius on everything is called out explicitly as a
+   trap.
+
+   This panel takes its cue from the artwork instead: a flat raised
+   plate on the night ground, squared off rather than pill-rounded,
+   lifted by a stepped tonal edge (light top-left, dark bottom-right)
+   the way the drawn objects in the banner are, with no outline —
+   outlines belong to illustrated shapes, not UI. ---- */
+.panel {
+  position: relative;
+  background: var(--panel-fill, #0a1523);
+  border: 0;
+  border-radius: 3px;
+  padding: 1.4rem 1.5rem;
+  box-shadow:
+    inset 1px 1px 0 rgba(203, 166, 121, .13),
+    inset -1px -1px 0 rgba(0, 0, 0, .45);
+}
+
+/* the one accent the system allows, used sparingly and never as fill */
+.panel--keyed::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--bronze-flat, #9E6F4C);
+}
+
+/* ---- code block scroll affordance -------------------------------
+   Overflowing code was hard-clipping at the box edge with no
+   scrollbar, no fade and nothing else to say the line continues, so
+   a truncated "# sync will not overwrite t" read as the whole
+   comment. macOS hides overlay scrollbars until you scroll, which
+   removes the only cue. These are styled to stay visible. ---- */
+main pre {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bronze-groove, #7F5E41) transparent;
+  overscroll-behavior-x: contain;
+}
+main pre::-webkit-scrollbar { height: 8px; }
+main pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, .28);
+  border-radius: 4px;
+}
+main pre::-webkit-scrollbar-thumb {
+  background: var(--bronze-groove, #7F5E41);
+  border-radius: 4px;
+}
+main pre::-webkit-scrollbar-thumb:hover {
+  background: var(--bronze-mid, #9F734D);
+}
+
+/* ---- syntax highlighting -----------------------------------------
+   The original page had a small shell/TOML highlighter. I dropped it
+   when the head/tail were rewritten for the new direction, which left
+   every code block a single flat tone. Restored here in the brand
+   palette.
+
+   Every token colour is checked against the code panel ground
+   (#0a1523): all clear WCAG AA comfortably. Warm tokens come from the
+   bronze ramp, the thing-you-type is the brightest ivory, and strings
+   take the one cool neutral so they separate from the warms without
+   spending the cyan accent, which the laws reserve for a single rare
+   highlight rather than a colour repeated down every code block. ---- */
+.tok-c { color: var(--bronze-light); font-style: italic; }   /* comment   7.67:1 */
+.tok-cmd { color: var(--ivory-bright); font-weight: 600; }   /* command  16.41:1 */
+.tok-sub { color: var(--bronze-highlight); }                 /* subcmd   12.46:1 */
+.tok-flag { color: var(--bronze-light); }                    /* --flag    7.67:1 */
+.tok-str { color: var(--steel-light); }                      /* string   12.18:1 */
+.tok-num { color: var(--bronze-highlight); }                 /* number   12.46:1 */
+.tok-key { color: var(--ivory-flat); }                       /* toml key 13.84:1 */
+.tok-tbl { color: var(--bronze-highlight); font-weight: 600; } /* [table] */
+.tok-bool { color: var(--steel-base); }                      /* true/false 9.30:1 */
+.tok-p { color: var(--bronze-groove); user-select: none; }   /* the $ prompt */
+
+/* ===== motion ===== */
+/* ===================================================================
+   MOTION
+
+   The original page had scroll-reveal and hover states. Both went out
+   with the three.js hero when the page was rewritten, which left it
+   completely static.
+
+   Everything here is gated on .js, so if the script never runs the
+   page renders fully visible rather than blank. Every rule is off
+   under prefers-reduced-motion. Nothing moves more than ~14px and
+   nothing loops except the sky, which is the one thing in the artwork
+   that would plausibly move at all.
+   =================================================================== */
+
+/* ---- scroll reveal ---- */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity .55s cubic-bezier(.22, .61, .36, 1),
+    transform .55s cubic-bezier(.22, .61, .36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+/* once it has arrived, stop paying for the compositor layer */
+.js [data-reveal].is-in { will-change: auto; }
+
+/* ---- hero entrance: the composition assembles rather than blinking in ---- */
+.js .hero-ground .wordmark-lockup,
+.js .hero-ground .eyebrow,
+.js .hero-ground h1,
+.js .hero-ground .sub,
+.js .hero-ground .cta,
+.js .hero-ground .hero-meta {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: hero-in .6s cubic-bezier(.22, .61, .36, 1) forwards;
+}
+.js .hero-ground .wordmark-lockup { animation-delay: .05s; }
+.js .hero-ground .eyebrow         { animation-delay: .16s; }
+.js .hero-ground h1               { animation-delay: .22s; }
+.js .hero-ground .sub             { animation-delay: .32s; }
+.js .hero-ground .cta             { animation-delay: .40s; }
+.js .hero-ground .hero-meta       { animation-delay: .50s; }
+
+@keyframes hero-in {
+  to { opacity: 1; transform: none; }
+}
+
+/* the mascot arrives from off the right, along its own barrel axis */
+.js .hero-mascot {
+  opacity: 0;
+  animation: mascot-in .85s cubic-bezier(.18, .74, .3, 1) .18s forwards;
+}
+@keyframes mascot-in {
+  from { opacity: 0; transform: translateY(-50%) translate(46px, 26px) scale(.97); }
+  to   { opacity: 1; transform: translateY(-50%); }
+}
+
+/* ---- sky twinkle: the one looping motion, and the only thing in the
+   artwork that would move. Slow, offset per star, low amplitude. ---- */
+.js .sky-stars i {
+  animation: twinkle var(--tw-dur, 6s) ease-in-out var(--tw-delay, 0s) infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: var(--tw-lo, .3); }
+  50%      { opacity: var(--tw-hi, .85); }
+}
+.js .sky-stars i:nth-child(1) { --tw-dur: 5.5s; --tw-delay: .0s;  --tw-lo: .30; --tw-hi: .70; }
+.js .sky-stars i:nth-child(2) { --tw-dur: 7.2s; --tw-delay: 1.1s; --tw-lo: .18; --tw-hi: .52; }
+.js .sky-stars i:nth-child(3) { --tw-dur: 6.1s; --tw-delay: .5s;  --tw-lo: .45; --tw-hi: 1;   }
+.js .sky-stars i:nth-child(4) { --tw-dur: 8.0s; --tw-delay: 2.3s; --tw-lo: .16; --tw-hi: .44; }
+.js .sky-stars i:nth-child(5) { --tw-dur: 6.8s; --tw-delay: 1.7s; --tw-lo: .14; --tw-hi: .40; }
+.js .sky-stars i:nth-child(6) { --tw-dur: 5.9s; --tw-delay: .9s;  --tw-lo: .22; --tw-hi: .58; }
+.js .sky-stars i:nth-child(7) { --tw-dur: 7.6s; --tw-delay: 3.1s; --tw-lo: .14; --tw-hi: .38; }
+.js .sky-stars i:nth-child(8) { --tw-dur: 6.4s; --tw-delay: 2.0s; --tw-lo: .15; --tw-hi: .42; }
+.js .sky-stars i:nth-child(9) { --tw-dur: 7.9s; --tw-delay: 1.4s; --tw-lo: .20; --tw-hi: .55; }
+
+/* ---- hover: panels lift on their existing bevel rather than growing
+   a new shadow, so the flat-plate language survives ---- */
+.panel {
+  transition: transform .22s cubic-bezier(.22, .61, .36, 1), box-shadow .22s;
+}
+@media (hover: hover) {
+  .panel:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 1px 1px 0 rgba(203, 166, 121, .22),
+      inset -1px -1px 0 rgba(0, 0, 0, .5);
+  }
+}
+
+/* copy controls and links get a quick, unfussy response */
+.copyline, .btn, main nav a, .colophon-links a {
+  transition: transform .16s cubic-bezier(.22, .61, .36, 1), filter .16s, color .16s;
+}
+@media (hover: hover) {
+  .copyline:hover { transform: translateY(-1px); }
+}
+.copyline:active, .btn:active { transform: translateY(1px); }
+
+/* the copy control's confirmation is a colour step, not a wobble */
+.copyline.is-done .ico, .mapping-copy.is-done, .quickstart-copy.is-done {
+  color: var(--cyan-light);
+}
+
+/* ---- respect the setting. Everything above is cancelled, including
+   the entrance animations, so nothing is left mid-flight. ---- */
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal],
+  .js [data-reveal].is-in,
+  .js .hero-ground .wordmark-lockup,
+  .js .hero-ground .eyebrow,
+  .js .hero-ground h1,
+  .js .hero-ground .sub,
+  .js .hero-ground .cta,
+  .js .hero-ground .hero-meta,
+  .js .hero-mascot {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
+  }
+  .js .sky-stars i { animation: none; }
+  .panel, .copyline, .btn { transition: none; }
+  .panel:hover, .copyline:hover { transform: none; }
+}
+
+/* ===== masthead ===== */
+/* ---- hero mascot ------------------------------------------------
+   The banner is a two-part composition: mascot on one side, wordmark
+   and tagline on the other. Our hero had its content on the left and
+   roughly 55% empty night sky on the right at desktop widths, which
+   read as unbalanced rather than composed.
+
+   It sits behind the copy and is clipped by .hero-ground, so it can
+   bleed toward the frame edge the way it does in the artwork. Below
+   the width where it would collide with the text it is removed
+   rather than shrunk — a tiny mascot reads as a stray sticker.
+
+   The drop-shadow is a hard zero-blur offset, matching the one
+   shadow convention the system allows. ---- */
+.hero-mascot {
+  position: absolute;
+  z-index: 0;
+  right: -3%;
+  top: 38%;
+  width: min(43%, 520px);
+  height: auto;
+  transform: translateY(-50%);
+  pointer-events: none;
+  filter: drop-shadow(6px 8px 0 rgba(0, 6, 18, .38));
+}
+
+/* keep the copy above it in every case */
+#masthead .masthead-content { position: relative; z-index: 1; }
+
+@media (max-width: 1080px) {
+  .hero-mascot { width: 42%; right: -6%; top: 40%; opacity: .55; }
+}
+
+@media (max-width: 860px) {
+  .hero-mascot { display: none; }
+}
+
+/* The copy takes the space above the horizon and centres itself
+   within it; the horizon is a flow sibling pinned after it. This is
+   what makes the overlap structurally impossible rather than merely
+   tuned away at a few breakpoints. */
+#masthead .masthead-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: clamp(20px, 4vw, 44px);
+}
+
+/* First section on the page — it does not need the full shared top
+   rhythm above it, and that padding was pushing the framed hero past
+   the fold. The copy never shrinks (flex-shrink 0) so it can never be
+   clipped by the ground's overflow:hidden; the horizon absorbs any
+   squeeze instead. */
+main > #masthead { padding-top: clamp(18px, 2.4vw, 34px); }
+#masthead .masthead-content { flex: 0 0 auto; }
+
+/* ===== idea ===== */
+/* ===================================================================
+   IDEA — "APIs in the same domain already share most of their shape."
+   Centrepiece is the three-cell flow diagram: what the client thinks
+   it's calling, what Shotgun rewrites, what upstream actually gets.
+   Built from foundation tokens/utilities only (panel surface, bronze
+   rule family, compass-star ornament) — no new outline or gradient
+   system introduced. All selectors scoped under #idea.
+   =================================================================== */
+
+#idea .kicker {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  margin-bottom: .9em;
+}
+
+#idea .sec-head > p {
+  font-size: 1.02rem;
+}
+
+/* screen-reader-only: keeps the locked ASCII arrow text present and
+   exact in the DOM without duplicating the drawn connector visually. */
+#idea .idea-visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===================================================================
+   The flow — a designed diagram, not three bordered boxes. Cards are
+   flat panels (foundation .panel surface, reused below rather than
+   redefined); connectors are bronze hairlines with a compass star
+   marking each handoff and a small chamfered arrowhead terminal,
+   echoing the wordmark's own flanking rules.
+   =================================================================== */
+#idea .idea-flow {
+  display: grid;
+  grid-template-columns: 1fr minmax(52px, 84px) 1fr minmax(52px, 84px) 1fr;
+  align-items: start;
+  gap: 0;
+  margin-top: clamp(34px, 4.5vw, 52px);
+}
+
+/* Cards ride on the shared .panel surface (squared plate, stepped
+   tonal bevel, no outline — DECISIONS.md #4: outlines are for
+   illustrated shapes, not cards). The diagram's own structure —
+   number tags + bronze connectors — does the work of separating the
+   three cells, so the cards themselves stay quiet plates, not boxes
+   with their own drawn border. */
+#idea .idea-flow-card {
+  padding: 1.6em 1.3em 1.3em;
+  min-width: 0;
+}
+
+/* The middle plate is the engine of the diagram, not just another
+   cell — it sits a shade proud of the other two (negative margin,
+   deeper fill) the way a keystone sits forward of the arch either
+   side of it, rather than gaining a drawn border the outer cells
+   don't have. .panel--keyed supplies the one permitted bronze
+   accent: a hairline keyed edge, not a stroke around the whole card. */
+#idea .idea-flow-card--mid {
+  margin-top: -14px;
+  padding-top: 1.9em;
+  padding-bottom: 1.6em;
+  background: color-mix(in srgb, var(--panel-fill, #0a1523) 88%, white 5%);
+}
+
+#idea .idea-card-tag {
+  position: absolute;
+  top: -.7em;
+  left: 1.1em;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .1em;
+  /* --bronze-flat lands at exactly 4.50:1 here: passing on paper,
+     too thin to rely on at this size. --bronze-light is 8.17:1. */
+  color: var(--bronze-light);
+  background: var(--sky-night);
+  padding: 0 .5em;
+}
+
+#idea .idea-card-tag--mid {
+  color: var(--bronze-highlight);
+  left: 1.35em;
+}
+
+#idea .flow-card .lbl {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  margin-bottom: .7em;
+}
+
+#idea .flow-card .val {
+  font-family: var(--font-mono);
+  font-size: .86rem;
+  line-height: 1.5;
+  color: var(--ivory-bright);
+  word-break: break-word;
+  min-height: 4.2em;
+}
+
+#idea .flow-card .note {
+  margin-top: 1em;
+  font-size: .85rem;
+  line-height: 1.5;
+  color: var(--ivory-flat);
+  opacity: .78;
+}
+
+#idea .flow-card .note code {
+  font-size: .92em;
+}
+
+/* ---- connectors: a bronze hairline split around a compass star at
+   its midpoint (junction, per BRIEF §2 law 6) — the same two-segment
+   + inline-star construction as the foundation .rule divider — plus a
+   small flat chamfer arrowhead at the terminal end. No ink-outline
+   here; this is ornament, not chrome. */
+#idea .idea-flow-arrow {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-top: 2.6em;
+  align-self: start;
+}
+
+#idea .idea-connector-seg {
+  flex: 1 1 auto;
+  height: 1px;
+  min-width: 8px;
+  background: var(--bronze-flat);
+}
+
+#idea .idea-connector-star {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin: 0 .4em;
+}
+
+#idea .idea-connector-head {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-left: -4px;
+  transform: rotate(45deg);
+  background: var(--bronze-flat);
+}
+
+/* ===================================================================
+   Narrow layout — stack the diagram, connectors rotate to vertical.
+   =================================================================== */
+@media (max-width: 760px) {
+  #idea .idea-flow {
+    grid-template-columns: 1fr;
+  }
+  #idea .idea-flow-arrow {
+    flex-direction: column;
+    align-self: center;
+    min-height: 40px;
+    padding: .6em 0 .6em;
+  }
+  #idea .idea-connector-seg {
+    width: 1px;
+    min-width: 0;
+    height: auto;
+    flex: 1 1 auto;
+  }
+  #idea .idea-connector-star {
+    margin: .35em 0;
+  }
+  #idea .idea-connector-head {
+    margin-left: 0;
+    margin-top: -4px;
+  }
+}
+
+/* ===== quickstart ===== */
+/* ===================================================================
+   QUICKSTART — heading, three numbered steps, one terminal block.
+   Everything here is scoped under #quickstart / quickstart- prefixed
+   so it can't leak into sibling sections. Reuses substrate tokens and
+   type/ornament utilities; does not redefine them.
+   =================================================================== */
+
+/* ---- kicker: small mono label above the heading, same vocabulary as
+   .eyebrow in the type piece but scoped here since no shared rule for
+   it exists yet in the foundation. ---- */
+#quickstart .kicker {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  margin-bottom: .8em;
+}
+
+/* ===================================================================
+   Steps — three numbered cards on the shared .panel surface (layout
+   contract) rather than a bespoke hairline-border-plus-lighter-fill
+   card. The compass star is the one ornament borrowed here, since it
+   already marks rule midpoints and flanks the wordmark — a fitting,
+   non-duplicated use for "step markers" rather than inventing a fifth
+   star shape.
+   =================================================================== */
+#quickstart .quickstart-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 2.2rem 0 2.6rem;
+}
+
+#quickstart .quickstart-step {
+  padding: 22px 22px 24px;
+}
+
+#quickstart .quickstart-n {
+  display: flex;
+  align-items: center;
+  gap: .55em;
+  margin-bottom: .75em;
+}
+#quickstart .quickstart-n .star--compass {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+#quickstart .quickstart-n b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  letter-spacing: .04em;
+  color: var(--bronze-light);
+  transform: scaleX(.82);
+  transform-origin: left center;
+}
+
+#quickstart .quickstart-step h3 { font-size: 1.05rem; }
+#quickstart .quickstart-step p { font-size: .93rem; margin: 0; }
+#quickstart .quickstart-step p code { font-size: .85em; }
+
+/* ===================================================================
+   Terminal block — the biggest element in the section. A flat cel
+   surface (2-3 tones, no smooth gradient sheen), a plain hairline
+   divider between the title bar and the code, no ink-outline stroke
+   (that belongs to illustration, not chrome). Code stays in the mono
+   stack, ivory on navy, comments dimmed to bronze — never tinted cyan.
+   This is a distinct terminal-window component, not a generic card,
+   so it keeps its own surface rather than moving to .panel.
+   =================================================================== */
+#quickstart .quickstart-code {
+  background: color-mix(in srgb, var(--sky-night) 90%, white 4%);
+  border: 1px solid color-mix(in srgb, var(--sky-night) 65%, white 12%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#quickstart .quickstart-code-bar {
+  display: flex;
+  align-items: center;
+  gap: .8em;
+  padding: 12px 18px;
+  background: color-mix(in srgb, var(--sky-night) 82%, white 8%);
+  border-bottom: 1px solid color-mix(in srgb, var(--sky-night) 60%, white 12%);
+}
+
+#quickstart .quickstart-dots { display: flex; gap: 6px; }
+#quickstart .quickstart-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: block;
+  background: var(--bronze-groove);
+}
+#quickstart .quickstart-dots i:nth-child(2) { background: var(--bronze-mid); }
+#quickstart .quickstart-dots i:nth-child(3) { background: var(--bronze-flat); }
+
+#quickstart .quickstart-name {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .05em;
+  color: var(--bronze-light);
+  margin-right: auto;
+}
+
+#quickstart .quickstart-copy {
+  font-family: var(--font-mono);
+  font-size: .74rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--sky-night) 55%, white 18%);
+  border-radius: 5px;
+  padding: .35em .7em;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+#quickstart .quickstart-copy:hover {
+  color: var(--ivory-flat);
+  border-color: color-mix(in srgb, var(--sky-night) 40%, white 28%);
+}
+#quickstart .quickstart-copy:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 2px;
+}
+
+#quickstart .quickstart-code pre {
+  margin: 0;
+  padding: 20px 22px 22px;
+  font-family: var(--font-mono);
+  font-size: .86rem;
+  line-height: 1.75;
+  color: var(--ivory-bright);
+  overflow-x: auto;
+  white-space: pre;
+}
+#quickstart .quickstart-code .quickstart-c {
+  color: var(--bronze-light);
+}
+
+@media (max-width: 860px) {
+  #quickstart .quickstart-steps { grid-template-columns: 1fr; }
+}
+
+/* ===== matching ===== */
+/* ===================================================================
+   MATCHING — heading, lead, and six panels describing the matching
+   rules. UI panels, not illustration: NO ink-outline on the cards
+   themselves (law 1 / DECISIONS.md #4). The per-panel mark is UI
+   chrome, not mascot material — DECISIONS.md's amber clarification
+   reserves --amber-* for the logo's connector square alone, so six
+   amber chips in a feature grid is exactly the "generic icon tile"
+   failure the brief warns about. The mark instead borrows the bronze
+   keyline already used on .panel--keyed: a hairline bronze frame
+   (not a filled block) around a flat bronze glyph, no gradient sheen,
+   no ink outline (that stays reserved for actual illustration).
+   =================================================================== */
+
+#matching .matching-lead {
+  margin: 0 0 clamp(2rem, 4vw, 2.8rem);
+  font-size: 1.05rem;
+}
+
+#matching .matching-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  #matching .matching-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  #matching .matching-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- card: the shared .panel / .panel--keyed surface from the layout
+   contract (squared plate, stepped tonal bevel, bronze keyed edge) —
+   chrome stays outline-free per DECISIONS.md #4. Radius comes from
+   .panel and is distinct from the button chamfer and the rope's own
+   corner radius, so no single --radius stands in for three different
+   geometric facts. ---- */
+#matching .matching-card {
+  padding: 1.5rem 1.55rem 1.65rem;
+}
+
+#matching .matching-card h3 {
+  display: flex;
+  align-items: center;
+  gap: .65em;
+  font-size: 1.05rem;
+  margin-bottom: .55em;
+}
+
+#matching .matching-card p {
+  font-size: .95rem;
+  margin: 0;
+  max-width: 42ch;
+}
+
+#matching .matching-card code {
+  font-size: .84em;
+}
+
+/* ---- the mark: UI chrome, not illustration, so it stays outline-free
+   (that stroke is reserved for drawn shapes — law 1). A hairline bronze
+   keyline frame, same family as .panel--keyed's edge accent, around a
+   flat bronze glyph — no fill block, no highlight sheen, so it reads as
+   this page's own small-mark vocabulary rather than a coloured icon
+   tile. The six glyphs (/, =, ↺, +, ⌥, ») stay mono for legibility and
+   keep each panel visually distinct. */
+#matching .mark {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: 1.5px solid var(--bronze-flat);
+  background: color-mix(in srgb, var(--bronze-flat) 12%, transparent);
+  color: var(--bronze-light);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: .92rem;
+  line-height: 1;
+  /* h3 carries a horizontal scaleX(.78) for the display face (law 2 /
+     DECISIONS.md #2) — invert it here so the mark stays a true square
+     instead of squashing into an oval. */
+  transform: scaleX(1.282);
+}
+
+/* ===== mapping ===== */
+/* ===================================================================
+   MAPPING — the mappings.toml section. Four code samples on the
+   shared .panel surface from the layout contract (no ink outline:
+   law 1 reserves that stroke for illustrated shapes, not code chrome).
+   Scoped entirely under #mapping / .mapping- prefix.
+   =================================================================== */
+
+#mapping .mapping-head {
+  margin: 0 0 2.4rem;
+}
+
+#mapping .mapping-lead {
+  font-size: 1.05rem;
+}
+
+#mapping .mapping-lead code {
+  color: var(--ivory-bright, var(--ivory-flat));
+}
+
+/* ---- grid of samples ---- */
+#mapping .mapping-grid {
+  display: grid;
+  /* min(400px, 100%) instead of a bare 400px — the bare form forces a
+     400px-wide track even on viewports narrower than that (plus the
+     .wrap gutters), which pushed the page into horizontal overflow on
+     phones. Clamping the minimum to the available width lets it
+     collapse to one column properly instead of overflowing. */
+  grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
+  gap: 20px;
+}
+
+/* ---- the card. Reuses the shared .panel surface (layout contract)
+   rather than the illustration-only ink outline. .panel's own padding
+   is zeroed here because the header bar and code body each carry their
+   own flush padding — a card-within-a-card would double it up. ---- */
+#mapping .mapping-code {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+  padding: 0;
+}
+
+#mapping .mapping-code-bar {
+  display: flex;
+  align-items: center;
+  gap: .7em;
+  padding: .65em .9em;
+  background: color-mix(in srgb, var(--sky-night) 80%, white 4%);
+  border-bottom: 1px solid color-mix(in srgb, var(--sky-night) 60%, white 10%);
+}
+
+#mapping .mapping-dots {
+  display: inline-flex;
+  gap: 5px;
+  flex: none;
+}
+#mapping .mapping-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bronze-groove);
+  display: block;
+}
+#mapping .mapping-dots i:nth-child(2) { background: var(--bronze-mid); }
+#mapping .mapping-dots i:nth-child(3) { background: var(--bronze-light); }
+
+#mapping .mapping-code-name {
+  font-family: var(--font-mono);
+  font-size: .76rem;
+  letter-spacing: .02em;
+  color: var(--bronze-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#mapping .mapping-copy {
+  margin-left: auto;
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: .74rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  padding: .3em .5em;
+  border-radius: 5px;
+  transition: color .15s ease, background-color .15s ease;
+}
+#mapping .mapping-copy:hover { color: var(--ivory-flat); background: color-mix(in srgb, var(--sky-night) 70%, white 8%); }
+#mapping .mapping-copy:focus-visible { outline: 2px solid var(--cyan-light); outline-offset: 2px; }
+#mapping .mapping-copy.is-done { color: var(--cyan-light); }
+
+/* ---- the code body. Legibility first: high-contrast ivory default,
+   two secondary tones (bronze for structure, dim bronze for comments)
+   pulled straight from the token set — no new hues invented. ---- */
+#mapping .mapping-pre {
+  margin: 0;
+  padding: 1.05em 1.15em 1.2em;
+  font-size: .83rem;
+  line-height: 1.68;
+  overflow-x: auto;
+  color: var(--ivory-flat);
+}
+#mapping .mapping-pre code { background: none; padding: 0; font-size: 1em; }
+
+#mapping .mapping-pre .h {
+  color: var(--ivory-bright, #FBF2D7);
+  font-weight: 700;
+}
+#mapping .mapping-pre .k { color: var(--bronze-light); }
+#mapping .mapping-pre .c {
+  /* was --bronze-mid: 4.40:1 on the panel ground, under WCAG AA.
+     --bronze-light measures 7.67:1 and is what the quickstart
+     terminal already uses for the same semantic role. */
+  color: var(--bronze-light);
+  font-style: italic;
+}
+
+/* ---- "the honest parts" — candour, not an error state. A thin
+   bronze rule (never red — red stays reserved for the mascot bandana)
+   marks it as a distinct, deliberate admission rather than a fault. ---- */
+#mapping .mapping-code--honest {
+  border-top: 2px solid var(--bronze-flat);
+}
+#mapping .mapping-honest-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  white-space: nowrap;
+}
+#mapping .mapping-honest-tag .star--bullet {
+  width: 9px;
+  height: 9px;
+}
+
+@media (max-width: 560px) {
+  #mapping .mapping-code-name { display: none; }
+}
+
+/* ===== anvil ===== */
+/* ===================================================================
+   ANVIL — the flagship use-case spotlight. This section carries a
+   little more illustrative weight than its neighbors (one small flat-
+   shaded icon), but the body copy, the exercise list, and the status
+   aside all stay firmly in "reading" mode: flat night ground, no
+   outline on the panel, no cyan wash. Everything is scoped under
+   #anvil so nothing here leaks into the sections around it.
+   =================================================================== */
+
+/* ---- head row: small badge + the eyebrow label. The bespoke anvil
+   SVG that used to live here read as an indistinct blob at 32x22px —
+   a mark nobody could identify on screen. Swapped for the compass
+   star, an existing mark from this brand's own ornament vocabulary
+   (law 6) already proven legible at small sizes elsewhere on this
+   page (quickstart step markers, the idea-flow connectors), at its
+   native 22px — no bespoke icon budget spent, no illegible blob. ---- */
+#anvil .anvil-head {
+  display: flex;
+  align-items: center;
+  gap: .8em;
+  margin-bottom: 1.1rem;
+}
+
+#anvil .anvil-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sky-night) 80%, white 5%);
+  border: 1px solid color-mix(in srgb, var(--bronze-flat) 45%, transparent);
+}
+
+#anvil .anvil-head .eyebrow { margin-bottom: 0; }
+
+#anvil .cta { margin: 1.5rem 0 2.1rem; }
+
+/* the out-link reuses .btn's chamfer/stroke/shadow geometry — same
+   family as the hero's primary CTA — but bare .btn has no ::before
+   fill of its own (transparent), so on its own it rendered as a flat
+   navy chamfer with none of the drawn-object shading .btn.primary
+   carries: a third, flatter button language on one page. This gives
+   it the same construction (two flat cel bands + upper-left specular
+   + the hard offset shadow, already supplied by .btn) in its own
+   SECONDARY key: a dark steel plate — echoing the section's own
+   hardware, not the CTA's bronze — so it reads as clearly lower in
+   the hierarchy rather than a second competing CTA.
+
+   Contrast (WCAG AA, 4.5:1 needed at this weight/size — the label is
+   bold .98rem/15.7px, under the 18.66px bold threshold for the 3:1
+   "large text" allowance):
+     - --ivory-flat label on the majority plate band
+       (color-mix(steel-shadow 65%, ink-outline 35%)): 7.32:1
+     - --ivory-flat label on the specular's brightest possible pixel
+       (--steel-shadow, its 0%-stop peak — the worst case a glyph
+       could ever sit on): 4.74:1
+   Both clear AA, so it's safe even where the specular overlaps a
+   letter, not just against the flat fill. */
+#anvil .anvil-link::before {
+  background:
+    radial-gradient(ellipse 16% 24% at 21% 26%,
+      var(--steel-shadow) 0%, transparent 72%),
+    linear-gradient(
+      color-mix(in srgb, var(--steel-shadow) 65%, var(--ink-outline) 35%) 0% 88%,
+      var(--ink-outline) 88% 100%
+    );
+}
+#anvil .anvil-link span { color: var(--ivory-flat); }
+#anvil .anvil-link:hover {
+  filter: drop-shadow(3px 4px 0 var(--ink-outline)) brightness(1.15);
+}
+#anvil .anvil-link:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 2px;
+}
+
+/* ---- what it exercises ---- */
+#anvil .anvil-exercise {
+  margin: 0 0 2.2rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid color-mix(in srgb, var(--bronze-flat) 28%, transparent);
+}
+
+#anvil .anvil-exercise-label {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  margin-bottom: .9em;
+}
+
+#anvil .anvil-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .65em;
+}
+
+#anvil .anvil-list li {
+  position: relative;
+  padding-left: 1.35em;
+  color: var(--ivory-flat);
+  opacity: .88;
+  line-height: 1.55;
+}
+
+#anvil .anvil-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .62em;
+  width: 7px;
+  height: 7px;
+  background: var(--bronze-flat);
+  transform: rotate(45deg);
+}
+
+/* ---- status: an honest aside, not a warning banner. Same lightened-
+   navy .panel surface used elsewhere on the page, no red/amber alarm
+   color, no outline — just a small bronze bullet star marking it as a
+   note worth reading, the way the source uses a rule-bullet star to
+   break a line rather than to alarm. ---- */
+#anvil .anvil-status {
+  display: flex;
+  gap: .9em;
+  align-items: flex-start;
+  padding: 1.3em 1.5em;
+}
+
+#anvil .anvil-status-mark {
+  flex: none;
+  margin-top: .35em;
+}
+
+#anvil .anvil-status-body h3 {
+  font-size: 1.02rem;
+  transform: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--ivory-flat);
+  margin-bottom: .35em;
+}
+
+#anvil .anvil-status-body p {
+  margin: 0;
+  font-size: .94rem;
+  max-width: 56ch;
+}
+
+@media (max-width: 640px) {
+  #anvil .anvil-status { flex-direction: column; }
+}
+
+/* ===== colophon ===== */
+/* ===================================================================
+   COLOPHON — the page footer. The bottom edge of the composition:
+   quiet, flat, no illustration, no outline, no panel. Sits directly on
+   the night ground and lets the rope-framed hero above do the closing.
+   =================================================================== */
+
+#colophon {
+  padding: 30px 0 44px;
+  border-top: 1px solid color-mix(in srgb, var(--bronze-flat) 28%, transparent);
+}
+
+#colophon .colophon-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .6em 1.6em;
+}
+
+#colophon .colophon-line {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .02em;
+  color: var(--bronze-light);
+  opacity: 1;
+}
+
+#colophon .colophon-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.4em;
+}
+
+#colophon .colophon-nav a {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .02em;
+  color: var(--ivory-flat);
+  opacity: .82;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: opacity .15s ease, border-color .15s ease;
+}
+
+#colophon .colophon-nav a:hover,
+#colophon .colophon-nav a:focus-visible {
+  opacity: 1;
+  border-color: var(--bronze-flat);
+}
+
+#colophon .colophon-nav a:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 3px;
+  border-color: transparent;
+}
+</style>
+</head>
+<body>
+<!-- ===== masthead ===== -->
+<main>
+<section id="masthead">
+  <div class="wrap">
+    <div class="rope-frame">
+      <span class="star star--sparkle corner tl" aria-hidden="true"></span>
+      <span class="star star--sparkle corner tr" aria-hidden="true"></span>
+      <span class="star star--sparkle corner bl" aria-hidden="true"></span>
+      <span class="star star--sparkle corner br" aria-hidden="true"></span>
+
+      <div class="hero-ground">
+        <div class="halftone-patch" aria-hidden="true"></div>
+
+        <div class="sky-stars" aria-hidden="true">
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+          <i class="star star--twinkle"></i>
+        </div>
+
+        <!-- The banner composes as mascot opposite wordmark. Without it the
+             hero's right half is empty night sky at desktop widths. Decorative
+             only — the wordmark already carries the name. -->
+        <img class="hero-mascot" src="assets/logo.png" alt="" aria-hidden="true"
+             width="900" height="607" loading="eager" decoding="async">
+
+        <div class="masthead-content">
+          <img class="wordmark-lockup" src="assets/wordmark.png" alt="Shotgun" width="852" height="344">
+
+          <span class="eyebrow"><b>OpenAPI</b> → <b>OpenAPI</b> translation proxy</span>
+          <h1>Turn any REST API into the shape of another.</h1>
+          <p class="sub">Shotgun is a reverse proxy generator for OpenAPI specs.</p>
+          <div class="cta">
+            <a class="btn primary" href="#quickstart">Get started</a>
+            <button class="copyline" data-copy="cargo install shotgun-proxy" type="button" aria-label="Copy install command: cargo install shotgun-proxy">
+              <span class="p">$</span><span>cargo install shotgun-proxy</span><span class="ico">copy</span>
+            </button>
+          </div>
+          <div class="hero-meta">
+            <span>OpenAPI 3.0 / 3.1 + Swagger 2.0</span>
+            <span>Deterministic matching</span>
+            <span>Rust + axum</span>
+          </div>
+        </div>
+
+        <div class="mesa-horizon" aria-hidden="true">
+          <svg class="horizon-art" viewBox="0 0 1600 640" preserveAspectRatio="xMidYMax slice" focusable="false">
+            <defs>
+              <radialGradient id="emberAmbient" cx="50%" cy="100%" r="60%">
+                <stop offset="0%" stop-color="#C8460F" stop-opacity="0.32"/>
+                <stop offset="25%" stop-color="#B23D0F" stop-opacity="0.2"/>
+                <stop offset="50%" stop-color="#A2340D" stop-opacity="0.1"/>
+                <stop offset="75%" stop-color="#A2340D" stop-opacity="0.03"/>
+                <stop offset="100%" stop-color="#A2340D" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="emberHot" cx="50%" cy="100%" r="60%">
+                <stop offset="0%" stop-color="#E86A22" stop-opacity="0.38"/>
+                <stop offset="30%" stop-color="#C8460F" stop-opacity="0.18"/>
+                <stop offset="60%" stop-color="#A2340D" stop-opacity="0.06"/>
+                <stop offset="100%" stop-color="#A2340D" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="glowSoften" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="14"/>
+              </filter>
+
+              <!-- agave / scrub fan: irregular converging spikes, not one repeated triangle -->
+              <path id="agave" d="M14,30 L9,11 L11,2 L13,14 L15,0 L17,15 L20,4 L21,13 L25,9 L18,30 Z"/>
+
+              <!-- hero buttes — broad, blocky, Monument-Valley masses built as a low
+                   irregular-stepped shoulder rising to a mostly-FLAT cap with a small
+                   hand-varied wobble (never a symmetric repeated zigzag). Width is
+                   deliberately greater than height so these read as landforms, not
+                   towers. -->
+              <clipPath id="clipT1">
+                <path d="M210,420 L210,388 L232,382 L232,335 L262,326 L262,275 L288,264 L288,225 L299,214 L313,219 L327,199 L349,209 L361,197 L379,211 L390,201 L407,213 L423,203 L441,209 L449,198 L467,208 L484,215 L484,258 L512,266 L512,312 L538,320 L538,368 L564,376 L564,420 L600,420 Z"/>
+              </clipPath>
+              <clipPath id="clipT2">
+                <path d="M540,420 L540,395 L556,388 L556,350 L574,342 L574,300 L588,285 L600,296 L613,278 L631,289 L646,281 L660,291 L660,315 L676,322 L676,360 L692,368 L692,420 L740,420 Z"/>
+              </clipPath>
+              <clipPath id="clipT3">
+                <path d="M1020,428 L1020,404 L1038,396 L1038,352 L1054,336 L1063,347 L1080,326 L1093,338 L1108,330 L1122,341 L1144,332 L1144,368 L1164,376 L1164,428 L1220,428 Z"/>
+              </clipPath>
+            </defs>
+
+            <!-- ember glow: tight, low, brightest directly behind each hero cluster,
+                 several irregular overlapping blobs (not one symmetric wash) so the
+                 diffusion reads uneven, falling off quickly above the horizon. Softened
+                 with a blur so no hard ellipse rim ever reads as a drawn shape. -->
+            <g filter="url(#glowSoften)">
+              <ellipse cx="460" cy="577" rx="230" ry="60" fill="url(#emberAmbient)"/>
+              <ellipse cx="410" cy="568" rx="125" ry="40" fill="url(#emberHot)"/>
+              <ellipse cx="580" cy="564" rx="100" ry="35" fill="url(#emberHot)"/>
+              <ellipse cx="1160" cy="577" rx="195" ry="58" fill="url(#emberAmbient)"/>
+              <ellipse cx="1180" cy="568" rx="112" ry="38" fill="url(#emberHot)"/>
+            </g>
+
+            <!-- layer 1: distant low-contrast mesas, furthest back — irregular eroded
+                 silhouettes with uneven bumps, never a clean regular polygon -->
+            <g fill="var(--mesa-bg-fill)">
+              <path d="M20,506 L30,486 L44,478 L58,474 L74,481 L88,470 L104,477 L120,490 L134,484 L148,504 L152,507 Z"/>
+              <path d="M810,505 L820,486 L834,474 L852,468 L868,476 L886,466 L904,473 L920,486 L938,480 L954,497 L964,506 Z"/>
+              <path d="M1420,508 L1428,488 L1440,474 L1456,466 L1470,472 L1484,460 L1500,467 L1514,480 L1528,473 L1544,489 L1558,503 L1566,509 Z"/>
+            </g>
+
+            <!-- layer 2: main hero cluster — a broad, blocky twin-butte mass sharing
+                 one flared, hand-terraced talus skirt (irregular bands, never a
+                 mechanical staircase). No ink outline on the landscape (law 1 is for
+                 illustrated mascot/ornament shapes only). -->
+            <g class="butte-cluster">
+              <path fill="var(--talus-upper)" d="M170,414.9 L234.7,423.7 L278.6,419.9 L329.3,422.1 L391.9,414.3 L427.9,428.2 L478.1,433.4 L513.1,425.1 L573.4,416.2 L641.5,425.6 L677.5,413.4 L731.5,426.1 L779.8,416 L790,413.4 L820,448.3 L814.8,453.5 L748.6,450.8 L702.5,452.4 L666.5,441.9 L622.1,442.9 L568.1,457.9 L498.2,457 L449.5,451.8 L408.9,458.4 L352.7,467.6 L306.9,464.3 L246.1,459 L208.2,445 L140,461.2 Z"/>
+              <path fill="var(--talus-mid)" d="M140,461.2 L208.2,445 L246.1,459 L306.9,464.3 L352.7,467.6 L408.9,458.4 L449.5,451.8 L498.2,457 L568.1,457.9 L622.1,442.9 L666.5,441.9 L702.5,452.4 L748.6,450.8 L814.8,453.5 L820,448.3 L850,491.7 L815.3,491.8 L763.7,495 L727.6,482.6 L672,492.7 L634.7,493.1 L573.8,497.1 L508.4,496.5 L468.1,491.8 L416.5,494.4 L365,497.9 L321.8,481.7 L257.5,476.3 L220.2,489.8 L164,484.1 L110,481.2 Z"/>
+              <path fill="var(--talus-lower)" d="M110,481.2 L164,484.1 L220.2,489.8 L257.5,476.3 L321.8,481.7 L365,497.9 L416.5,494.4 L468.1,491.8 L508.4,496.5 L573.8,497.1 L634.7,493.1 L672,492.7 L727.6,482.6 L763.7,495 L815.3,491.8 L850,491.7 L900,520 L60,520 Z"/>
+
+              <g clip-path="url(#clipT1)">
+                <rect x="200" y="195" width="410" height="235" fill="var(--butte-lit)"/>
+                <path fill="var(--butte-mid)" d="M195,190 L615,190 L615,293.6 L605.3,290.6 L565.2,303.9 L534.7,288.7 L479.8,294.4 L438.6,296.6 L405.2,298.9 L356.7,289.7 L307.7,291.2 L274.9,289.5 L227.8,294.1 L195,287.2 Z"/>
+                <rect x="470" y="195" width="140" height="235" fill="var(--butte-shadow)"/>
+                <path stroke="var(--butte-cap)" stroke-width="3.5" stroke-opacity=".85" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M288,225 L299,214 L313,219 L327,199 L349,209 L361,197 L379,211 L390,201 L407,213 L423,203 L441,209 L449,198 L467,208 L484,215"/>
+                <g class="strata" stroke="#170A05" fill="none" stroke-linecap="round">
+                  <path d="M234,296 L592,304" stroke-width="2.7" stroke-opacity="0.21"/>
+                  <path d="M228,358 L588,353" stroke-width="3.9" stroke-opacity="0.23"/>
+                </g>
+                <g class="flute" stroke="#150803" fill="none" stroke-linecap="round">
+                  <path d="M231.2,343.7 Q228.7,314.8 231.2,300.4" stroke-width="0.85" stroke-opacity="0.22"/>
+                  <path d="M248.8,415 Q249.0,324.9 248.8,227.0" stroke-width="1.55" stroke-opacity="0.26"/>
+                  <path d="M256.7,404.7 Q259.4,363.1 256.7,309.9" stroke-width="1.27" stroke-opacity="0.17"/>
+                  <path d="M273.0,415 Q275.1,305.8 273.0,202.2" stroke-width="2.07" stroke-opacity="0.2"/>
+                  <path d="M282.8,415 Q278.8,312.9 282.8,227.1" stroke-width="2.17" stroke-opacity="0.22"/>
+                  <path d="M325.8,415 Q322.4,317.5 325.8,212.7" stroke-width="1.97" stroke-opacity="0.18"/>
+                  <path d="M379.8,318.2 Q381.9,261.0 379.8,225.2" stroke-width="1.17" stroke-opacity="0.15"/>
+                  <path d="M386.0,415 Q386.5,308.9 386.0,205.7" stroke-width="1.09" stroke-opacity="0.27"/>
+                  <path d="M399.8,358.7 Q399.2,327.5 399.8,312.3" stroke-width="1.2" stroke-opacity="0.31"/>
+                  <path d="M409.1,415 Q406.8,318.7 409.1,228.3" stroke-width="2.08" stroke-opacity="0.25"/>
+                  <path d="M418.6,403.6 Q416.7,385.4 418.6,351.9" stroke-width="1.29" stroke-opacity="0.19"/>
+                  <path d="M428.6,286.7 Q426.5,253.5 428.6,214.6" stroke-width="1.36" stroke-opacity="0.22"/>
+                  <path d="M438.8,415 Q439.4,325.5 438.8,215.5" stroke-width="1.07" stroke-opacity="0.16"/>
+                  <path d="M448.5,415 Q446.0,318.2 448.5,208.0" stroke-width="2.21" stroke-opacity="0.17"/>
+                  <path d="M458.3,415 Q457.7,306.1 458.3,219.3" stroke-width="0.86" stroke-opacity="0.31"/>
+                  <path d="M467.0,366.6 Q469.6,342.3 467.0,312.5" stroke-width="1.24" stroke-opacity="0.16"/>
+                  <path d="M503.1,415 Q500.9,310.3 503.1,202.2" stroke-width="2.08" stroke-opacity="0.25"/>
+                  <path d="M509.1,415 Q506.7,308.7 509.1,229.4" stroke-width="1.2" stroke-opacity="0.21"/>
+                  <path d="M550.6,297.9 Q551.2,257.4 550.6,237.6" stroke-width="1.34" stroke-opacity="0.3"/>
+                  <path d="M565.2,415 Q566.7,320.4 565.2,221.0" stroke-width="1.01" stroke-opacity="0.14"/>
+                  <path d="M571.6,393.3 Q575.3,340.6 571.6,314.7" stroke-width="1.75" stroke-opacity="0.22"/>
+                </g>
+              </g>
+
+              <g clip-path="url(#clipT2)">
+                <rect x="510" y="275" width="235" height="150" fill="var(--butte-lit)"/>
+                <path fill="var(--butte-mid)" d="M505,270 L750,270 L750,327.7 L726.6,338.0 L683.6,336.2 L640.9,322.8 L592.8,329.9 L540.3,326.5 L505,322.4 Z"/>
+                <rect x="655" y="275" width="90" height="150" fill="var(--butte-shadow)"/>
+                <path stroke="var(--butte-cap)" stroke-width="3" stroke-opacity=".85" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M588,285 L600,296 L613,278 L631,289 L646,281 L660,291"/>
+                <g class="strata" stroke="#170A05" fill="none" stroke-linecap="round">
+                  <path d="M519,327 L718,334" stroke-width="2.7" stroke-opacity="0.25"/>
+                </g>
+                <g class="flute" stroke="#150803" fill="none" stroke-linecap="round">
+                  <path d="M526.5,415 Q522.9,365.0 526.5,293.6" stroke-width="1.61" stroke-opacity="0.2"/>
+                  <path d="M544.9,385.5 Q548.4,358.6 544.9,316.4" stroke-width="2.05" stroke-opacity="0.23"/>
+                  <path d="M553.7,415 Q557.4,344.1 553.7,283.7" stroke-width="1.84" stroke-opacity="0.29"/>
+                  <path d="M562.3,382.3 Q559.8,333.0 562.3,308.9" stroke-width="1.54" stroke-opacity="0.15"/>
+                  <path d="M572.0,415 Q571.3,356.7 572.0,289.4" stroke-width="2.0" stroke-opacity="0.2"/>
+                  <path d="M582.7,415 Q581.1,355.6 582.7,290.8" stroke-width="1.55" stroke-opacity="0.22"/>
+                  <path d="M591.4,415 Q595.4,343.4 591.4,279.9" stroke-width="1.42" stroke-opacity="0.21"/>
+                  <path d="M636.2,415 Q636.3,354.2 636.2,298.9" stroke-width="1.02" stroke-opacity="0.28"/>
+                  <path d="M645.8,346.1 Q644.4,313.4 645.8,288.6" stroke-width="1.13" stroke-opacity="0.16"/>
+                  <path d="M652.2,415 Q653.4,346.9 652.2,295.5" stroke-width="1.73" stroke-opacity="0.16"/>
+                  <path d="M691.0,415 Q694.4,354.5 691.0,296.2" stroke-width="1.92" stroke-opacity="0.22"/>
+                  <path d="M699.1,415 Q703.0,359.8 699.1,290.9" stroke-width="1.47" stroke-opacity="0.26"/>
+                  <path d="M707.7,415 Q710.3,358.2 707.7,295.3" stroke-width="2.03" stroke-opacity="0.15"/>
+                  <path d="M715.7,415 Q713.1,355.6 715.7,285.5" stroke-width="1.42" stroke-opacity="0.19"/>
+                  <path d="M721.8,415 Q718.7,342.5 721.8,285.8" stroke-width="1.21" stroke-opacity="0.28"/>
+                </g>
+              </g>
+            </g>
+
+            <!-- layer 3: second hero cluster, its own flared talus, smaller and
+                 further right, same broad-blocky proportion as the main cluster -->
+            <g class="butte-cluster">
+              <path fill="var(--talus-upper)" d="M970,427.4 L1024.6,433.1 L1075.9,430.9 L1131.4,430 L1184.4,429.6 L1247.1,423.1 L1260,423.1 L1290,452.6 L1263.7,452.3 L1205.5,458.9 L1149.5,461.1 L1086.1,463.5 L1038,454.2 L998,460.7 L940,457.6 Z"/>
+              <path fill="var(--talus-mid)" d="M940,457.6 L998,460.7 L1038,454.2 L1086.1,463.5 L1149.5,461.1 L1205.5,458.9 L1263.7,452.3 L1290,452.6 L1330,483.6 L1298.1,481.3 L1241.8,496.1 L1191.7,492.1 L1149.2,499.5 L1109.7,498.2 L1066.8,483.6 L1023.7,484.3 L959,493.3 L900,485.7 Z"/>
+              <path fill="var(--talus-lower)" d="M900,485.7 L959,493.3 L1023.7,484.3 L1066.8,483.6 L1109.7,498.2 L1149.2,499.5 L1191.7,492.1 L1241.8,496.1 L1298.1,481.3 L1330,483.6 L1360,520 L870,520 Z"/>
+
+              <g clip-path="url(#clipT3)">
+                <rect x="1010" y="322" width="220" height="106" fill="var(--butte-lit)"/>
+                <path fill="var(--butte-mid)" d="M1005,318 L1235,318 L1235,362.5 L1220.1,362.1 L1174.7,364.7 L1140.0,369.4 L1087.7,364.7 L1050.8,367.7 L1005,363.3 Z"/>
+                <rect x="1150" y="322" width="80" height="106" fill="var(--butte-shadow)"/>
+                <path stroke="var(--butte-cap)" stroke-width="3" stroke-opacity=".85" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M1054,336 L1063,347 L1080,326 L1093,338 L1108,330 L1122,341 L1144,332"/>
+                <g class="strata" stroke="#170A05" fill="none" stroke-linecap="round">
+                  <path d="M1005,368 L1211,371" stroke-width="2.5" stroke-opacity="0.26"/>
+                </g>
+                <g class="flute" stroke="#150803" fill="none" stroke-linecap="round">
+                  <path d="M1040.2,423 Q1041.3,381.2 1040.2,350.5" stroke-width="1.24" stroke-opacity="0.24"/>
+                  <path d="M1057.8,362.0 Q1057.2,343.8 1057.8,306.2" stroke-width="1.92" stroke-opacity="0.25"/>
+                  <path d="M1101.7,423 Q1098.1,389.4 1101.7,329.0" stroke-width="1.21" stroke-opacity="0.19"/>
+                  <path d="M1111.2,423 Q1109.8,368.9 1111.2,329.2" stroke-width="1.2" stroke-opacity="0.16"/>
+                  <path d="M1119.3,423 Q1116.8,368.7 1119.3,336.2" stroke-width="0.94" stroke-opacity="0.3"/>
+                  <path d="M1128.3,423 Q1125.5,365.5 1128.3,329.2" stroke-width="1.25" stroke-opacity="0.17"/>
+                  <path d="M1135.4,308.1 Q1135.1,280.9 1135.4,255.2" stroke-width="1.29" stroke-opacity="0.25"/>
+                  <path d="M1144.6,423 Q1144.4,372.0 1144.6,327.8" stroke-width="1.76" stroke-opacity="0.18"/>
+                  <path d="M1154.1,353.5 Q1152.6,341.6 1154.1,308.0" stroke-width="1.67" stroke-opacity="0.19"/>
+                  <path d="M1162.5,423 Q1158.8,370.9 1162.5,341.9" stroke-width="1.56" stroke-opacity="0.28"/>
+                  <path d="M1176.8,423 Q1176.9,373.3 1176.8,337.0" stroke-width="1.86" stroke-opacity="0.31"/>
+                  <path d="M1184.7,334.6 Q1183.3,294.5 1184.7,276.5" stroke-width="1.1" stroke-opacity="0.27"/>
+                  <path d="M1191.4,423 Q1192.4,385.5 1191.4,333.4" stroke-width="1.96" stroke-opacity="0.29"/>
+                </g>
+              </g>
+            </g>
+
+            <!-- small distant petite butte, its own tiny cluster, far right of frame —
+                 flat-topped, not a rounded dome -->
+            <g fill="var(--mesa-mid-fill)">
+              <path d="M1440,520 L1440,500 L1448,494 L1448,478 L1458,470 L1480,463 L1490,470 L1500,479 L1500,494 L1508,500 L1508,520 Z"/>
+            </g>
+
+            <!-- dark mid-ground plateau — a flat stacked layer, in front of the buttes'
+                 talus, behind the black ridge -->
+            <path class="mesa-mid" fill="var(--mesa-mid-fill)" d="M0,640 L0,600 L120,592 L260,605 L400,588 L560,602 L700,590 L780,585 L860,592 L980,580 L1120,598 L1260,586 L1400,602 L1520,590 L1600,598 L1600,640 Z"/>
+
+            <!-- black foreground ridge — flat, near-flat rolling silhouette (gentle
+                 rises, not a repeated sawtooth comb), zero interior detail, frontmost
+                 ground -->
+            <path class="ridge" fill="var(--ridge-fill)" d="M0,640 L0,604 Q40,596 78,602 Q130,610 165,592 Q210,572 260,586 Q320,602 375,594 Q430,584 470,598 Q540,616 600,600 Q660,582 715,592 Q790,606 850,588 Q910,570 965,586 Q1030,604 1090,596 Q1150,588 1195,600 Q1260,616 1320,600 Q1385,582 1440,594 Q1510,608 1560,596 Q1585,590 1600,594 L1600,640 Z"/>
+
+            <!-- saguaro, left edge, thick trunk + two rounded upraised arms of unequal
+                 size — built from overlapping rounded capsules (never negative x, so
+                 nothing clips against the svg's own viewBox edge) -->
+            <g class="saguaro" fill="var(--ridge-fill)">
+              <path d="M70,640 L70,250 Q70,220 91,220 Q112,220 112,250 L112,640 Z"/>
+              <path d="M26,420 L26,310 Q26,296 40,296 Q54,296 54,310 L54,420 Z"/>
+              <path d="M40,384 L70,384 Q78,384 78,398 Q78,412 70,412 L40,412 Z"/>
+              <path d="M128,356 L128,264 Q128,250 143,250 Q158,250 158,264 L158,356 Z"/>
+              <path d="M108,328 L146,328 Q154,328 154,341 Q154,354 146,354 L108,354 Z"/>
+            </g>
+
+            <!-- agave / scrub fan silhouettes, hand-scattered along the ridge, varied
+                 scale + rotation so the repeated symbol doesn't read as a stamped tile -->
+            <g class="scrub-fans" fill="var(--ridge-fill)">
+              <use href="#agave" transform="translate(130,584) scale(1.15) rotate(-4 15 15)"/>
+              <use href="#agave" transform="translate(310,596) scale(0.85) rotate(6 15 15)"/>
+              <use href="#agave" transform="translate(710,596) scale(1.1) rotate(-7 15 15)"/>
+              <use href="#agave" transform="translate(880,584) scale(0.8) rotate(10 15 15)"/>
+              <use href="#agave" transform="translate(1010,596) scale(0.9) rotate(7 15 15)"/>
+              <use href="#agave" transform="translate(1310,596) scale(1.15) rotate(-6 15 15)"/>
+              <use href="#agave" transform="translate(1370,600) scale(0.85) rotate(9 15 15)"/>
+              <use href="#agave" transform="translate(1530,592) scale(1.0) rotate(-3 15 15)"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== idea ===== -->
+<section id="idea">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">The idea</div>
+      <h2>APIs in the same domain already share most of their shape.</h2>
+      <p>
+        Git forges, payment processors, and CMS platforms usually share 60 to 80 percent of their structure.
+        Shotgun maps the obvious parts and leaves you a checklist for the rest.
+      </p>
+    </div>
+
+    <div class="flow idea-flow">
+      <div class="flow-card idea-flow-card panel">
+        <span class="idea-card-tag" aria-hidden="true">01</span>
+        <div class="lbl">Client thinks it's calling</div>
+        <div class="val">GET /<wbr>repos/<wbr>{owner}/<wbr>{repo}/<wbr>issues/<wbr>{issue_number}</div>
+        <div class="note"><code>gh</code>, Renovate, and CI scripts run unmodified.</div>
+      </div>
+
+      <div class="flow-arrow idea-flow-arrow" aria-hidden="true">
+        <span class="idea-connector-seg"></span>
+        <span class="star star--compass idea-connector-star"></span>
+        <span class="idea-connector-seg"></span>
+        <span class="idea-connector-head"></span>
+      </div>
+      <span class="idea-visually-hidden">──▶</span>
+
+      <div class="flow-card mid idea-flow-card idea-flow-card--mid panel panel--keyed">
+        <span class="idea-card-tag idea-card-tag--mid" aria-hidden="true">02</span>
+        <div class="lbl">Shotgun rewrites</div>
+        <div class="val">path_params · renames · defaults · drops</div>
+        <div class="note">Driven by <code>mappings.toml</code>. Nothing guessed at runtime.</div>
+      </div>
+
+      <div class="flow-arrow idea-flow-arrow" aria-hidden="true">
+        <span class="idea-connector-seg"></span>
+        <span class="star star--compass idea-connector-star"></span>
+        <span class="idea-connector-seg"></span>
+        <span class="idea-connector-head"></span>
+      </div>
+      <span class="idea-visually-hidden">──▶</span>
+
+      <div class="flow-card idea-flow-card panel">
+        <span class="idea-card-tag" aria-hidden="true">03</span>
+        <div class="lbl">Upstream gets</div>
+        <div class="val">GET /<wbr>api/<wbr>v1/<wbr>repos/<wbr>{owner}/<wbr>{repo}/<wbr>issues/<wbr>{index}</div>
+        <div class="note">The response comes back in the shape the client expected.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== quickstart ===== -->
+<section id="quickstart">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Quick start</div>
+      <h2>Two commands and one edit get you a proxy.</h2>
+      <p>Diff, review, serve. When a spec changes, re-diff without losing your edits.</p>
+    </div>
+
+    <div class="quickstart-steps">
+      <div class="quickstart-step panel">
+        <div class="quickstart-n"><span class="star star--compass"></span><b>01</b></div>
+        <h3>Diff the specs</h3>
+        <p><code>shotgun init</code> matches endpoints and fields, then writes a <code>mappings.toml</code>. It leaves blank anything it can't resolve.</p>
+      </div>
+      <div class="quickstart-step panel">
+        <div class="quickstart-n"><span class="star star--compass"></span><b>02</b></div>
+        <h3>Fill in the gaps</h3>
+        <p>Anything left as <code>target = ""</code> is your todo list. Mark what you touch <code>edited = true</code> to protect it from sync.</p>
+      </div>
+      <div class="quickstart-step panel">
+        <div class="quickstart-n"><span class="star star--compass"></span><b>03</b></div>
+        <h3>Serve it</h3>
+        <p>Point <code>--target-url</code> at the upstream. Clients keep speaking the source API's shape.</p>
+      </div>
+    </div>
+
+    <div class="quickstart-code" data-copy-block>
+      <div class="quickstart-code-bar">
+        <div class="quickstart-dots"><i></i><i></i><i></i></div>
+        <span class="quickstart-name">terminal</span>
+        <button class="quickstart-copy" type="button" data-copy="block" aria-label="Copy the quick start commands">copy</button>
+      </div>
+      <pre data-lang="sh"><span class="quickstart-c"># 1. Diff two specs and generate a mapping file</span>
+shotgun init --source github-api.json --target forgejo-api.json --output mappings.toml
+
+<span class="quickstart-c"># 2. Review mappings.toml, fill in anything left as target = ""</span>
+
+<span class="quickstart-c"># 3. Run the proxy</span>
+shotgun serve --mappings mappings.toml --target-url https://forgejo.example.com
+
+<span class="quickstart-c"># 4. Clients call Shotgun in the GitHub shape; it translates on the fly</span>
+curl http://localhost:8080/repos/owner/repo
+
+<span class="quickstart-c"># When specs change, re-diff without losing your edits.</span>
+shotgun sync --source github-api-v2.json --target forgejo-api-v2.json --mappings mappings.toml
+
+<span class="quickstart-c"># Check a mapping file for problems</span>
+shotgun validate --mappings mappings.toml</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ===== matching ===== -->
+<section id="matching">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Matching</span>
+      <h2>Shotgun only maps what it can prove.</h2>
+      <p class="matching-lead">
+        It guesses nothing at request time. When it can't prove a match, it
+        leaves the entry unmapped and says so.
+      </p>
+    </div>
+
+    <div class="matching-grid">
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">/</span>Endpoints</h3>
+        <p>Shotgun matches on path and HTTP method, ignoring <code>{param}</code> names. If that misses, it tries <code>operationId</code>. Anything left over stays unmapped.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">=</span>Fields</h3>
+        <p>A field maps when the name matches exactly and the type fits. If the types clash, Shotgun flags it and forces nothing.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">↺</span>Renames</h3>
+        <p>Shotgun never writes one. You write every rename, then mark it <code>edited = true</code> so <code>sync</code> leaves it alone.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">+</span>Defaults and drops</h3>
+        <p>A field that only one side has becomes a <code>default</code> holding a zero value, or a <code>drop</code> that clients never see.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">⌥</span>Nested schemas</h3>
+        <p>Shotgun diffs a <code>User</code> inside a <code>Repository</code> once. It reuses that map every time the type shows up, through a named <code>[[schemas]]</code> entry.</p>
+      </div>
+      <div class="matching-card panel panel--keyed">
+        <h3><span class="mark">»</span>Pagination</h3>
+        <p>Shotgun remaps query params between the two styles. It also rewrites <code>Link</code> header URLs to point back at the proxy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== mapping ===== -->
+<section id="mapping">
+  <div class="wrap">
+    <div class="mapping-head sec-head">
+      <span class="eyebrow">mappings.toml</span>
+      <h2>One file you can read in a diff.</h2>
+      <p class="mapping-lead">
+        The whole translation lives in one TOML file. You can review it, version it, and mark
+        entries <code>edited = true</code> so a later sync skips them.
+      </p>
+    </div>
+
+    <div class="mapping-grid">
+
+      <article class="panel mapping-code" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">mappings.toml &mdash; settings</span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="h">[settings]</span>
+<span class="c"># prepended to every target path</span>
+<span class="k">target_base_path</span> = "/api/v1"
+<span class="c"># stripped from the request before matching</span>
+<span class="k">source_base_path</span> = "/api/v3"
+<span class="c"># "reject" (501) or "passthrough"</span>
+<span class="k">unmapped_endpoint_behavior</span> = "reject"
+<span class="c"># "passthrough" / "drop" / "drop_unknown"</span>
+<span class="k">unmapped_field_behavior</span> = "passthrough"
+
+<span class="h">[settings.pagination]</span>
+<span class="k">source_style</span> = "link_header"
+<span class="k">target_style</span> = "link_header"
+<span class="k">rewrite_link_urls</span> = true
+
+<span class="h">[settings.pagination.param_map]</span>
+<span class="k">per_page</span> = "limit"</code></pre>
+      </article>
+
+      <article class="panel mapping-code" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">mappings.toml &mdash; an endpoint</span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="h">[[endpoints]]</span>
+<span class="k">source</span> = "GET /repos/{owner}/{repo}/issues/{issue_number}"
+<span class="k">target</span> = "GET /repos/{owner}/{repo}/issues/{index}"
+<span class="k">edited</span> = true          <span class="c"># sync will not overwrite this</span>
+
+<span class="h">[endpoints.path_params]</span>
+<span class="k">issue_number</span> = "index"
+
+<span class="h">[endpoints.response.renames]</span>
+<span class="k">number</span> = "index"       <span class="c"># humans write these, never the diff</span>
+
+<span class="h">[endpoints.response.defaults]</span>
+<span class="k">draft</span> = false          <span class="c"># source-only field, synthesized</span>
+<span class="k">labels</span> = []
+
+<span class="h">[endpoints.response]</span>
+<span class="k">drops</span> = ["due_date"]   <span class="c"># target-only, hidden from clients</span>
+
+<span class="h">[[endpoints.response.nested]]</span>
+<span class="k">path</span> = "user"
+<span class="k">schema_map</span> = "User"    <span class="c"># reuse a [[schemas]] entry</span></code></pre>
+      </article>
+
+      <article class="panel mapping-code" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">reusable schema</span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="h">[[schemas]]</span>
+<span class="k">name</span> = "User"
+<span class="k">edited</span> = true
+
+<span class="h">[schemas.renames]</span>
+<span class="k">login</span> = "username"
+
+<span class="h">[schemas.defaults]</span>
+<span class="k">site_admin</span> = false</code></pre>
+      </article>
+
+      <article class="panel mapping-code mapping-code--honest" data-copy-block>
+        <header class="mapping-code-bar">
+          <span class="mapping-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mapping-code-name">the honest parts</span>
+          <span class="mapping-honest-tag">
+            <span class="star star--bullet" aria-hidden="true"></span>
+            admits it
+          </span>
+          <button class="mapping-copy" type="button" data-copy="block">copy</button>
+        </header>
+        <pre class="mapping-pre"><code><span class="c"># No target equivalent exists; returns 501 at runtime</span>
+<span class="h">[[endpoints]]</span>
+<span class="k">source</span> = "POST /repos/{owner}/{repo}/issues/{issue_number}/lock"
+<span class="k">target</span> = ""
+<span class="k">note</span> = "Forgejo has no issue locking API"
+
+<span class="c"># Same name, incompatible types; flagged, left untouched</span>
+<span class="h">[endpoints.response.type_conflicts]</span>
+<span class="k">reactions</span> = "object vs array"</code></pre>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== anvil ===== -->
+<section id="anvil">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="anvil-head">
+        <span class="anvil-badge" aria-hidden="true">
+          <span class="star star--compass"></span>
+        </span>
+        <span class="eyebrow">Flagship use case</span>
+      </div>
+
+      <h2>Anvil points GitHub tooling at Forgejo.</h2>
+      <p>
+        Anvil is a curated <code>mappings.toml</code> on top of this proxy. It lets GitHub tools like
+        <code>gh</code>, Renovate, and CI scripts talk to a self-hosted Forgejo instance with no
+        client-side changes.
+      </p>
+      <p>It drives Shotgun's work against real specs, not toy ones.</p>
+    </div>
+
+    <div class="cta">
+      <a class="btn anvil-link" href="https://github.com/ThatXliner/anvil">View Anvil <span aria-hidden="true">↗</span></a>
+    </div>
+
+    <div class="anvil-exercise">
+      <div class="anvil-exercise-label">What that exercises</div>
+      <ul class="anvil-list">
+        <li>A client that hardcodes a base path it doesn't own (<code>/api/v3/…</code>)</li>
+        <li>Path params that disagree (<code>issue_number</code> vs <code>index</code>)</li>
+        <li>Method changes across the same resource (<code>PUT</code> → <code>PATCH</code>)</li>
+        <li>Fields one side has and the other doesn't, in both directions</li>
+        <li>Query params and Link headers translated between two pagination conventions</li>
+      </ul>
+    </div>
+
+    <div class="anvil-status panel">
+      <span class="star star--bullet anvil-status-mark" aria-hidden="true"></span>
+      <div class="anvil-status-body">
+        <h3>The core works, but this is not a finished product.</h3>
+        <p>
+          Shotgun handles OpenAPI 3.0/3.1 and Swagger 2.0, and the proxy runs. Anvil is
+          hardening it against real specs. MIT licensed.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== colophon ===== -->
+<section id="colophon">
+  <div class="wrap colophon-inner">
+    <p class="colophon-line">MIT &middot; built with Rust + axum</p>
+    <nav class="colophon-nav">
+      <a href="https://github.com/ThatXliner/shotgun">GitHub</a>
+      <a href="https://crates.io/crates/shotgun-proxy">crates.io</a>
+      <a href="https://github.com/ThatXliner/anvil">Anvil</a>
+    </nav>
+  </div>
+</section>
+</main>
+<script>
+/* year in the imprint line */
+(function () {
+  var y = document.getElementById('yr');
+  if (y) y.textContent = new Date().getFullYear();
+})();
+
+/* copy-to-clipboard on anything carrying data-copy, or any [data-copy-block] */
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e2) {}
+    ta.remove();
+    return ok;
+  }
+}
+/* The status word is written into a dedicated child element when the
+   control has one (the hero chip's .ico, a code block's label span).
+   Writing to the button's own textContent instead would erase its
+   other children — on the hero chip that wiped "$ cargo install
+   shotgun-proxy" and collapsed the pill mid-interaction. */
+function copyStatusTarget(btn) {
+  return btn.querySelector('[data-copy-status], .ico') ||
+         (btn.children.length === 0 ? btn : null);
+}
+
+document.querySelectorAll('[data-copy]').forEach(function (btn) {
+  /* Registered up front, not inside the handler. Setting aria-live in
+     the same call that mutates the text gives assistive tech no chance
+     to observe the region before it changes, so the first "copied" was
+     liable to be missed. */
+  var status = copyStatusTarget(btn);
+  if (status) status.setAttribute('aria-live', 'polite');
+
+  /* Four "copy" buttons in a row all announced as an indistinguishable
+     "copy, button". Name each one after the block it copies. */
+  if (!btn.hasAttribute('aria-label')) {
+    var block = btn.closest('[data-copy-block]') || btn.parentElement;
+    var name = block && block.querySelector('.mapping-code-name, .quickstart-code-name, .code-name, [data-copy-name]');
+    if (name && name.textContent.trim()) {
+      btn.setAttribute('aria-label', 'Copy ' + name.textContent.trim());
+    }
+  }
+
+  btn.addEventListener('click', async function () {
+    var src = btn.getAttribute('data-copy');
+    var text;
+    if (src === 'block') {
+      var scope = btn.closest('[data-copy-block]') ||
+                  btn.closest('section') || document;
+      var pre = scope.querySelector('pre');
+      if (!pre) return;
+      text = pre.textContent;
+    } else {
+      text = src;
+    }
+
+    var ok = await copyText(text);
+    var target = copyStatusTarget(btn);
+    if (!target) return;
+
+    if (!target.hasAttribute('data-copy-idle')) {
+      target.setAttribute('data-copy-idle', target.textContent);
+    }
+    var idle = target.getAttribute('data-copy-idle');
+
+    target.textContent = ok ? 'copied' : 'press ⌘C';
+    btn.classList.toggle('is-done', ok);
+
+    clearTimeout(btn._copyTimer);
+    btn._copyTimer = setTimeout(function () {
+      target.textContent = idle;
+      btn.classList.remove('is-done');
+    }, 1500);
+  });
+});
+</script>
+<script>
+/* ---- syntax highlighting ------------------------------------------
+   Runs over the page's own code blocks only. It reads pre.textContent
+   BEFORE rewriting innerHTML and stashes it on dataset.raw, so the
+   copy buttons keep copying clean source rather than the highlighted
+   markup. Language comes from data-lang; anything unlabelled is left
+   exactly as authored. ------------------------------------------- */
+(function () {
+  var esc = function (s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  };
+
+  /* Single pass. Chained .replace() calls corrupt the output because
+     later patterns match the markup earlier ones just inserted: a flag
+     regex hits the "-cmd" inside class="tok-cmd", and a string regex
+     hits the quotes around it. One regex with alternates, applied once
+     to the escaped source, never rescans what it wrote. */
+  function highlightShell(src) {
+    var re = /("(?:[^"\\]|\\.)*")|(https?:\/\/\S+)|(--[\w-]+)|(\s+)|([^\s]+)/g;
+    return esc(src).split('\n').map(function (line) {
+      if (/^\s*#/.test(line)) return '<span class="tok-c">' + line + '</span>';
+      if (!line.trim()) return line;
+      var wordIndex = 0;
+      return line.replace(re, function (m, str, url, flag, ws) {
+        if (str || url) return '<span class="tok-str">' + m + '</span>';
+        if (flag) return '<span class="tok-flag">' + m + '</span>';
+        if (ws) return m;
+        wordIndex++;
+        if (wordIndex === 1) return '<span class="tok-cmd">' + m + '</span>';
+        if (wordIndex === 2) return '<span class="tok-sub">' + m + '</span>';
+        return m;
+      });
+    }).join('\n');
+  }
+
+  function highlightToml(src) {
+    var re = /(#[^\n]*)|("(?:[^"\\]|\\.)*")|(\[\[?[^\]\n]+\]\]?)|\b(true|false)\b|\b(\d[\w.:+-]*)\b|([A-Za-z_][\w-]*)(?=\s*=)/g;
+    return esc(src).replace(re, function (m, c, s, t, b, n, k) {
+      if (c) return '<span class="tok-c">' + m + '</span>';
+      if (s) return '<span class="tok-str">' + m + '</span>';
+      if (t) return '<span class="tok-tbl">' + m + '</span>';
+      if (b) return '<span class="tok-bool">' + m + '</span>';
+      if (n) return '<span class="tok-num">' + m + '</span>';
+      return '<span class="tok-key">' + m + '</span>';
+    });
+  }
+
+  document.querySelectorAll('pre[data-lang]').forEach(function (pre) {
+    var raw = pre.textContent;
+    pre.dataset.raw = raw;
+    var lang = pre.getAttribute('data-lang');
+    if (lang === 'sh' || lang === 'shell' || lang === 'bash') {
+      pre.innerHTML = highlightShell(raw);
+    } else if (lang === 'toml') {
+      pre.innerHTML = highlightToml(raw);
+    }
+  });
+})();
+</script>
+<script>
+/* ---- scroll reveal -------------------------------------------------
+   Tags content itself rather than making every section's markup carry
+   attributes, so sections stay owned by their own files.
+
+   A plain scroll check rather than IntersectionObserver. IO only
+   reports elements whose intersection state changes, so jumping to an
+   anchor or to the page bottom never fires for the content it skipped
+   over, and whole sections stayed invisible. A rAF-throttled pass over
+   ~15 elements costs nothing and is correct for gradual scrolling,
+   jumps and anchor links alike.
+
+   Failsafes, because content stuck invisible is far worse than content
+   that just appears: reduced-motion reveals everything up front, and a
+   timer reveals anything still hidden after 2.5s. ------------------ */
+(function () {
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var targets = [];
+  document.querySelectorAll('main > section').forEach(function (sec) {
+    if (sec.id === 'masthead') return;          // the hero animates on load
+    var scope = sec.querySelector('.wrap') || sec;
+    var kids = Array.prototype.slice.call(scope.children);
+    if (!kids.length) kids = [sec];
+    kids.forEach(function (el, i) {
+      el.setAttribute('data-reveal', '');
+      el.style.setProperty('--reveal-delay', Math.min(i, 4) * 70 + 'ms');
+      targets.push(el);
+    });
+  });
+
+  function revealAll() {
+    targets.forEach(function (el) { el.classList.add('is-in'); });
+    targets = [];
+  }
+
+  if (reduced) { revealAll(); return; }
+
+  var ticking = false;
+  function check() {
+    ticking = false;
+    var limit = window.innerHeight * 0.94;
+    targets = targets.filter(function (el) {
+      if (el.getBoundingClientRect().top < limit) {
+        el.classList.add('is-in');
+        return false;
+      }
+      return true;
+    });
+    if (!targets.length) {
+      removeEventListener('scroll', onScroll);
+      removeEventListener('resize', onScroll);
+    }
+  }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(check);
+  }
+
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll, { passive: true });
+  check();
+  setTimeout(revealAll, 2500);
+})();
+</script>
+</body>
+</html>

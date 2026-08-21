@@ -1,0 +1,147 @@
+/* ===================================================================
+   QUICKSTART — heading, three numbered steps, one terminal block.
+   Everything here is scoped under #quickstart / quickstart- prefixed
+   so it can't leak into sibling sections. Reuses substrate tokens and
+   type/ornament utilities; does not redefine them.
+   =================================================================== */
+
+/* ---- kicker: small mono label above the heading, same vocabulary as
+   .eyebrow in the type piece but scoped here since no shared rule for
+   it exists yet in the foundation. ---- */
+#quickstart .kicker {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  margin-bottom: .8em;
+}
+
+/* ===================================================================
+   Steps — three numbered cards on the shared .panel surface (layout
+   contract) rather than a bespoke hairline-border-plus-lighter-fill
+   card. The compass star is the one ornament borrowed here, since it
+   already marks rule midpoints and flanks the wordmark — a fitting,
+   non-duplicated use for "step markers" rather than inventing a fifth
+   star shape.
+   =================================================================== */
+#quickstart .quickstart-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 2.2rem 0 2.6rem;
+}
+
+#quickstart .quickstart-step {
+  padding: 22px 22px 24px;
+}
+
+#quickstart .quickstart-n {
+  display: flex;
+  align-items: center;
+  gap: .55em;
+  margin-bottom: .75em;
+}
+#quickstart .quickstart-n .star--compass {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+#quickstart .quickstart-n b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  letter-spacing: .04em;
+  color: var(--bronze-light);
+  transform: scaleX(.82);
+  transform-origin: left center;
+}
+
+#quickstart .quickstart-step h3 { font-size: 1.05rem; }
+#quickstart .quickstart-step p { font-size: .93rem; margin: 0; }
+#quickstart .quickstart-step p code { font-size: .85em; }
+
+/* ===================================================================
+   Terminal block — the biggest element in the section. A flat cel
+   surface (2-3 tones, no smooth gradient sheen), a plain hairline
+   divider between the title bar and the code, no ink-outline stroke
+   (that belongs to illustration, not chrome). Code stays in the mono
+   stack, ivory on navy, comments dimmed to bronze — never tinted cyan.
+   This is a distinct terminal-window component, not a generic card,
+   so it keeps its own surface rather than moving to .panel.
+   =================================================================== */
+#quickstart .quickstart-code {
+  background: color-mix(in srgb, var(--sky-night) 90%, white 4%);
+  border: 1px solid color-mix(in srgb, var(--sky-night) 65%, white 12%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#quickstart .quickstart-code-bar {
+  display: flex;
+  align-items: center;
+  gap: .8em;
+  padding: 12px 18px;
+  background: color-mix(in srgb, var(--sky-night) 82%, white 8%);
+  border-bottom: 1px solid color-mix(in srgb, var(--sky-night) 60%, white 12%);
+}
+
+#quickstart .quickstart-dots { display: flex; gap: 6px; }
+#quickstart .quickstart-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: block;
+  background: var(--bronze-groove);
+}
+#quickstart .quickstart-dots i:nth-child(2) { background: var(--bronze-mid); }
+#quickstart .quickstart-dots i:nth-child(3) { background: var(--bronze-flat); }
+
+#quickstart .quickstart-name {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .05em;
+  color: var(--bronze-light);
+  margin-right: auto;
+}
+
+#quickstart .quickstart-copy {
+  font-family: var(--font-mono);
+  font-size: .74rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--bronze-light);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--sky-night) 55%, white 18%);
+  border-radius: 5px;
+  padding: .35em .7em;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+#quickstart .quickstart-copy:hover {
+  color: var(--ivory-flat);
+  border-color: color-mix(in srgb, var(--sky-night) 40%, white 28%);
+}
+#quickstart .quickstart-copy:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 2px;
+}
+
+#quickstart .quickstart-code pre {
+  margin: 0;
+  padding: 20px 22px 22px;
+  font-family: var(--font-mono);
+  font-size: .86rem;
+  line-height: 1.75;
+  color: var(--ivory-bright);
+  overflow-x: auto;
+  white-space: pre;
+}
+#quickstart .quickstart-code .quickstart-c {
+  color: var(--bronze-light);
+}
+
+@media (max-width: 860px) {
+  #quickstart .quickstart-steps { grid-template-columns: 1fr; }
+}

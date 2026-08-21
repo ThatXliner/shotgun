@@ -1,0 +1,131 @@
+/* ===================================================================
+   MOTION
+
+   The original page had scroll-reveal and hover states. Both went out
+   with the three.js hero when the page was rewritten, which left it
+   completely static.
+
+   Everything here is gated on .js, so if the script never runs the
+   page renders fully visible rather than blank. Every rule is off
+   under prefers-reduced-motion. Nothing moves more than ~14px and
+   nothing loops except the sky, which is the one thing in the artwork
+   that would plausibly move at all.
+   =================================================================== */
+
+/* ---- scroll reveal ---- */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity .55s cubic-bezier(.22, .61, .36, 1),
+    transform .55s cubic-bezier(.22, .61, .36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+/* once it has arrived, stop paying for the compositor layer */
+.js [data-reveal].is-in { will-change: auto; }
+
+/* ---- hero entrance: the composition assembles rather than blinking in ---- */
+.js .hero-ground .wordmark-lockup,
+.js .hero-ground .eyebrow,
+.js .hero-ground h1,
+.js .hero-ground .sub,
+.js .hero-ground .cta,
+.js .hero-ground .hero-meta {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: hero-in .6s cubic-bezier(.22, .61, .36, 1) forwards;
+}
+.js .hero-ground .wordmark-lockup { animation-delay: .05s; }
+.js .hero-ground .eyebrow         { animation-delay: .16s; }
+.js .hero-ground h1               { animation-delay: .22s; }
+.js .hero-ground .sub             { animation-delay: .32s; }
+.js .hero-ground .cta             { animation-delay: .40s; }
+.js .hero-ground .hero-meta       { animation-delay: .50s; }
+
+@keyframes hero-in {
+  to { opacity: 1; transform: none; }
+}
+
+/* the mascot arrives from off the right, along its own barrel axis */
+.js .hero-mascot {
+  opacity: 0;
+  animation: mascot-in .85s cubic-bezier(.18, .74, .3, 1) .18s forwards;
+}
+@keyframes mascot-in {
+  from { opacity: 0; transform: translateY(-50%) translate(46px, 26px) scale(.97); }
+  to   { opacity: 1; transform: translateY(-50%); }
+}
+
+/* ---- sky twinkle: the one looping motion, and the only thing in the
+   artwork that would move. Slow, offset per star, low amplitude. ---- */
+.js .sky-stars i {
+  animation: twinkle var(--tw-dur, 6s) ease-in-out var(--tw-delay, 0s) infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: var(--tw-lo, .3); }
+  50%      { opacity: var(--tw-hi, .85); }
+}
+.js .sky-stars i:nth-child(1) { --tw-dur: 5.5s; --tw-delay: .0s;  --tw-lo: .30; --tw-hi: .70; }
+.js .sky-stars i:nth-child(2) { --tw-dur: 7.2s; --tw-delay: 1.1s; --tw-lo: .18; --tw-hi: .52; }
+.js .sky-stars i:nth-child(3) { --tw-dur: 6.1s; --tw-delay: .5s;  --tw-lo: .45; --tw-hi: 1;   }
+.js .sky-stars i:nth-child(4) { --tw-dur: 8.0s; --tw-delay: 2.3s; --tw-lo: .16; --tw-hi: .44; }
+.js .sky-stars i:nth-child(5) { --tw-dur: 6.8s; --tw-delay: 1.7s; --tw-lo: .14; --tw-hi: .40; }
+.js .sky-stars i:nth-child(6) { --tw-dur: 5.9s; --tw-delay: .9s;  --tw-lo: .22; --tw-hi: .58; }
+.js .sky-stars i:nth-child(7) { --tw-dur: 7.6s; --tw-delay: 3.1s; --tw-lo: .14; --tw-hi: .38; }
+.js .sky-stars i:nth-child(8) { --tw-dur: 6.4s; --tw-delay: 2.0s; --tw-lo: .15; --tw-hi: .42; }
+.js .sky-stars i:nth-child(9) { --tw-dur: 7.9s; --tw-delay: 1.4s; --tw-lo: .20; --tw-hi: .55; }
+
+/* ---- hover: panels lift on their existing bevel rather than growing
+   a new shadow, so the flat-plate language survives ---- */
+.panel {
+  transition: transform .22s cubic-bezier(.22, .61, .36, 1), box-shadow .22s;
+}
+@media (hover: hover) {
+  .panel:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 1px 1px 0 rgba(203, 166, 121, .22),
+      inset -1px -1px 0 rgba(0, 0, 0, .5);
+  }
+}
+
+/* copy controls and links get a quick, unfussy response */
+.copyline, .btn, main nav a, .colophon-links a {
+  transition: transform .16s cubic-bezier(.22, .61, .36, 1), filter .16s, color .16s;
+}
+@media (hover: hover) {
+  .copyline:hover { transform: translateY(-1px); }
+}
+.copyline:active, .btn:active { transform: translateY(1px); }
+
+/* the copy control's confirmation is a colour step, not a wobble */
+.copyline.is-done .ico, .mapping-copy.is-done, .quickstart-copy.is-done {
+  color: var(--cyan-light);
+}
+
+/* ---- respect the setting. Everything above is cancelled, including
+   the entrance animations, so nothing is left mid-flight. ---- */
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal],
+  .js [data-reveal].is-in,
+  .js .hero-ground .wordmark-lockup,
+  .js .hero-ground .eyebrow,
+  .js .hero-ground h1,
+  .js .hero-ground .sub,
+  .js .hero-ground .cta,
+  .js .hero-ground .hero-meta,
+  .js .hero-mascot {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
+  }
+  .js .sky-stars i { animation: none; }
+  .panel, .copyline, .btn { transition: none; }
+  .panel:hover, .copyline:hover { transform: none; }
+}

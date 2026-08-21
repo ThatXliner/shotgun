@@ -1,0 +1,56 @@
+/* ===================================================================
+   COLOPHON — the page footer. The bottom edge of the composition:
+   quiet, flat, no illustration, no outline, no panel. Sits directly on
+   the night ground and lets the rope-framed hero above do the closing.
+   =================================================================== */
+
+#colophon {
+  padding: 30px 0 44px;
+  border-top: 1px solid color-mix(in srgb, var(--bronze-flat) 28%, transparent);
+}
+
+#colophon .colophon-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .6em 1.6em;
+}
+
+#colophon .colophon-line {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .02em;
+  color: var(--bronze-light);
+  opacity: 1;
+}
+
+#colophon .colophon-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.4em;
+}
+
+#colophon .colophon-nav a {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .02em;
+  color: var(--ivory-flat);
+  opacity: .82;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: opacity .15s ease, border-color .15s ease;
+}
+
+#colophon .colophon-nav a:hover,
+#colophon .colophon-nav a:focus-visible {
+  opacity: 1;
+  border-color: var(--bronze-flat);
+}
+
+#colophon .colophon-nav a:focus-visible {
+  outline: 2px solid var(--cyan-light);
+  outline-offset: 3px;
+  border-color: transparent;
+}

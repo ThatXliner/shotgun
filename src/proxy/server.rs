@@ -24,7 +24,7 @@ pub async fn serve(
     let state = Arc::new(AppState {
         mapping,
         target_url,
-        client: reqwest::Client::new(),
+        client: reqwest::Client::builder().use_rustls_tls().build()?,
         log_unmapped,
     });
 
